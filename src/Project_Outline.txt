@@ -1,0 +1,61 @@
+1. Display Layer
+    - Adafruit Protomatter object
+
+    - Framebuffer configuration
+
+    - RGB matrix pin mapping
+
+    These parts will initialize the display, draw sprites and pixels and push the framebuffer
+
+    *only one task should touch protomatter directly
+
+2. FreeRTOS tasks/System Core
+
+    - Render Task
+        pulls latest frame, renders to matrix,
+        maintains refresh rate, handles animations.
+        
+    - API/Fetch task
+        Wifi requests (HTTP, REST), JSON parsing, converting raw data into structures
+        Runs every 10-60 seconds and pushes results into a queue or shared structure with mutex
+
+    - State / Model 
+        maintains display states and handles transitions from score and clock updates
+
+    - Input Task
+        handles buttons/input, debouncing, user interaction state
+
+    - Animation task (Future)
+        for if animations get very involved
+
+3. Shared Data Model
+
+    - Mutex-protected struct and queue-based updates from API tasks.
+
+4. Initialization Flow
+
+    - setup is a system bootstrap:
+        serial init
+        Wifi init
+        protomatter init
+        create mutexes / queues
+        create tasks
+        start scheduler
+    
+5. Data Flow
+
+    API Task
+    Parsed JSON
+    Mutex / Queue
+    Render Task
+    Protomatter framebuffer
+    LED Matrix
+
+
+Build Order:
+
+1. Protomatter initialization and test
+2. A render task with FreeRTOS timing
+3. State struct for updates
+4. API fetch task
+5. Animations/transitions
