@@ -4,17 +4,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 
-// For testing and offseason
-#define USE_TEST_SERVER 1
-
-#if USE_TEST_SERVER
-// Point this at whatever machine runs test_server.py on your network.
-static const char* NBA_SCOREBOARD_URL = "http://192.168.1.165:5000/fake_clock";
-#else
 static const char* NBA_SCOREBOARD_URL =
     "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json";
-#endif
-
 static const char* BALLDONTLIE_BASE = "https://api.balldontlie.io/v1/games";
 static const char* BALLDONTLIE_TOKEN = "7b02b2a9-0b96-4f6f-9ab1-1b14f14abb9f";
 static const bool DAY_LIGHT_SAVINGS = true;

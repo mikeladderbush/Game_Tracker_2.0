@@ -70,8 +70,14 @@ void setup() {
 
     Serial.println("Connecting to WiFi...");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    unsigned long startAttempt = millis();
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
+        Serial.print(".");
+        if (millis() - startAttempt > 15000) {
+            Serial.println("\nWiFi failed to connect after 15s, restarting...");
+            ESP.restart();
+        }
     }
     Serial.print("Connected, IP: ");
     Serial.println(WiFi.localIP());

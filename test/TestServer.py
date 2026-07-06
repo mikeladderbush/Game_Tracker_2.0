@@ -76,4 +76,4 @@ def reset():
 if __name__ == "__main__":
     # host="0.0.0.0" so the ESP32 on the same network can actually reach it —
     # 127.0.0.1 would only be reachable from this machine itself.
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=4999, debug=True)
