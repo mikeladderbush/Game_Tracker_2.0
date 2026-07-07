@@ -18,8 +18,8 @@ app = Flask(__name__)
 
 state = {
     "home_team": "Celtics",
-    "away_team": "Knicks",
-    "home_score": 0,
+    "away_team": "Wizards",
+    "home_score": 1,
     "away_score": 0,
     "period": 1,
     "clock_seconds": 12 * 60,  # 12:00

@@ -4,8 +4,16 @@
 #include <ArduinoJson.h>
 #include <time.h>
 
+#ifndef TEST_SERVER
+#define TEST_SERVER 1
+#endif
+
+#if TEST_SERVER
+static const char* NBA_SCOREBOARD_URL = "http://192.168.1.165:4999/fake_clock";
+#else
 static const char* NBA_SCOREBOARD_URL =
     "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json";
+#endif
 static const char* BALLDONTLIE_BASE = "https://api.balldontlie.io/v1/games";
 static const char* BALLDONTLIE_TOKEN = "7b02b2a9-0b96-4f6f-9ab1-1b14f14abb9f";
 static const bool DAY_LIGHT_SAVINGS = true;
@@ -72,11 +80,15 @@ String convertUtcToEst(const String& timeStrHHMM) {
 FetchResult fetchGame(const char* teamName) {
     FetchResult result;
 
+    HTTPClient http;
+#if TEST_SERVER
+    WiFiClient client;
+    if (!http.begin(client, NBA_SCOREBOARD_URL)) {
+#else
     WiFiClientSecure client;
     client.setInsecure();
-
-    HTTPClient http;
     if (!http.begin(client, NBA_SCOREBOARD_URL)) {
+#endif
         Serial.println("fetchGame: http.begin failed");
         return result;
     }
