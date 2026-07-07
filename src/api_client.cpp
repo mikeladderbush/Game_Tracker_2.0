@@ -3,6 +3,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <time.h>
+#include "secrets.h"
 
 #ifndef TEST_SERVER
 #define TEST_SERVER 1
@@ -15,7 +16,6 @@ static const char* NBA_SCOREBOARD_URL =
     "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json";
 #endif
 static const char* BALLDONTLIE_BASE = "https://api.balldontlie.io/v1/games";
-static const char* BALLDONTLIE_TOKEN = "7b02b2a9-0b96-4f6f-9ab1-1b14f14abb9f";
 static const bool DAY_LIGHT_SAVINGS = true;
 
 // Teams have different names and ids across APIs and within the same API at times. This list consolidates them.
