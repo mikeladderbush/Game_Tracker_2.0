@@ -10,7 +10,7 @@ static uint8_t oePin = 14;
 
 Adafruit_Protomatter matrix(
     64,
-    1,          
+    4,
     6,
     rgbPins,
     5,          
