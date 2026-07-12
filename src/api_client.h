@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include "api_formatting.h"
 
 // Results collected from the live game API are translated from JSON into this struct.
 struct FetchResult {
@@ -27,5 +28,6 @@ String getCurrentDate();
 String convertUtcToEst(const String& timeStrHHMM);
 FetchResult fetchGame(const char* teamName);
 NextGameResult getNextGame(const char* teamName);
-int clockStrToSecs(const String& clockStr);
-String secsToMMSS(int totalSeconds);
+// clockStrToSecs, secsToMMSS, teamNameToId now live in api_formatting.h
+// (included above) - re-exposed here unchanged so existing callers don't
+// need to change their #include.

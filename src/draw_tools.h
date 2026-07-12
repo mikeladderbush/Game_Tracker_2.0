@@ -3,18 +3,9 @@
 #include <cstddef>
 #include <Adafruit_Protomatter.h>
 #include "nba_teams.h"
+#include "glyph_data.h"
 
 extern Adafruit_Protomatter matrix;
-
-struct GlyphEntry {
-    char ch;
-    uint8_t width;
-    uint8_t height;
-    const uint8_t* pattern;
-};
-
-extern const GlyphEntry GLYPH_TABLE[];
-extern const size_t GLYPH_TABLE_SIZE;
 
 void drawSprite(int x, int y, uint8_t width, uint8_t height, uint8_t size, const uint8_t* pattern, const uint16_t* palette, uint8_t bgIndex = 0, bool drawBg = true);
 void drawChar(char ch, int x, int y, uint8_t size);

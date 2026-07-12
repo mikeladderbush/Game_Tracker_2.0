@@ -1,5 +1,6 @@
 #pragma once
 #include "api_client.h"
+#include "clock_sync.h"
 
 struct GameFrame {
     char teamName[32] = {0};     

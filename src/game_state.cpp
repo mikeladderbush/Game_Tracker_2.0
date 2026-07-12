@@ -83,10 +83,8 @@ void GameStateMachine::pollLiveGame() {
 
         int apiSecs = clockStrToSecs(result.gameClock);
         if (apiSecs >= 0) {
+            displaySecs_ = nextDisplaySeconds(displaySecs_, apiSecs, DELAY_SECS);
             targetSecs_ = apiSecs;
-            if (displaySecs_ < 0) {
-                displaySecs_ = targetSecs_ + DELAY_SECS;
-            }
         }
     }
 

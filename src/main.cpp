@@ -49,7 +49,7 @@ static void renderTask(void* pv) {
             if (opp) drawLogo(*opp, 0, 0, 1);
             drawScore(frame.homeScore, frame.awayScore);
             drawGameClock(frame.clock);
-            if (frame.period >= 1 && frame.period <= 4) drawQuarter(frame.period);
+            if (frame.period >= 1) drawQuarter(frame.period);
         } else {
             ScheduledGame sched = gameStateMachine.scheduledGame();
             const NbaTeam* opp = teamFromString(sched.opponentFullName);

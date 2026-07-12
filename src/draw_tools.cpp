@@ -1,4 +1,5 @@
 #include "draw_tools.h"
+#include "draw_formatting.h"
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
@@ -42,17 +43,15 @@ void drawLogo(const NbaTeam& team, int x, int y, int homeOrAway){
 }
 
 static void drawScoreDigits(int score, int tensX, int onesX, int hundredsX) {
-    int hundreds = (score / 100) % 10;
-    int tens = (score / 10) % 10;
-    int ones = score % 10;
+    ScoreDigits d = scoreToDigits(score);
 
-    if (hundreds > 0) {
-        drawChar('0' + hundreds, hundredsX, 48, 2);
-        drawChar('0' + tens, tensX, 48 ,2);
-        drawChar('0' + ones, onesX, 48, 2);
+    if (d.hasHundreds) {
+        drawChar('0' + d.hundreds, hundredsX, 48, 2);
+        drawChar('0' + d.tens, tensX, 48 ,2);
+        drawChar('0' + d.ones, onesX, 48, 2);
     } else {
-        drawChar('0' + tens, tensX, 48, 2);
-        drawChar('0' + ones, onesX, 48, 2);
+        drawChar('0' + d.tens, tensX, 48, 2);
+        drawChar('0' + d.ones, onesX, 48, 2);
     }
 }
 
@@ -62,27 +61,35 @@ void drawScore(int homeScore, int awayScore) {
 }
  
 void drawQuarter(int quarter) {
-    if (quarter == 1) {
-        drawChar('1', 25, 48, 1); drawChar('s', 30, 48, 1); drawChar('t', 33, 48, 1);
-    } else if (quarter == 2) {
-        drawChar('2', 25, 48, 1); drawChar('n', 30, 48, 1); drawChar('d', 33, 48, 1);
-    } else if (quarter == 3) {
-        drawChar('3', 25, 48, 1); drawChar('r', 30, 48, 1); drawChar('d', 33, 48, 1);
-    } else if (quarter == 4) {
-        drawChar('4', 25, 48, 1); drawChar('t', 30, 48, 1); drawChar('h', 33, 48, 1);
-    } else if (quarter == -1) {  // "Half"
-        drawChar('H', 28, 48, 1); drawChar('T', 32, 48, 1);
+    const char* label = quarterLabel(quarter);
+    size_t len = strlen(label);
+    if (len == 0) return;
+
+    // Hand-tuned pixel x-positions per label shape, preserved exactly from
+    // the original per-case layout ("1st".."4th" use wider spacing than
+    // the 2-char "HT"/"OT" and 3-char "OT2".."OT9" labels).
+    static const int POS_QUARTER[3] = {25, 30, 33};  // "1st","2nd","3rd","4th"
+    static const int POS_HALF_OT[2] = {28, 32};       // "HT","OT"
+    static const int POS_OT_NUM[3]  = {25, 29, 33};   // "OT2".."OT9"
+
+    const int* xs;
+    if (len == 2) {
+        xs = POS_HALF_OT;
+    } else if (quarter >= 6) {
+        xs = POS_OT_NUM;
+    } else {
+        xs = POS_QUARTER;
+    }
+
+    for (size_t i = 0; i < len; i++) {
+        drawChar(label[i], xs[i], 48, 1);
     }
 }
  
 void drawGameClock(const char* mmss) {
-    if (!mmss || strlen(mmss) == 0) return;
-    const char* colon = strchr(mmss, ':');
-    if (!colon) return;
- 
-    int minutes = atoi(mmss);
-    int seconds = atoi(colon + 1);
- 
+    int minutes, seconds;
+    if (!parseMMSS(mmss, minutes, seconds)) return;
+
     if (minutes >= 10) {
         drawChar('0' + (minutes / 10), 9, 34, 2);
     } else {
@@ -95,24 +102,10 @@ void drawGameClock(const char* mmss) {
 }
 
 void drawScheduleTime(const char* hMmAmPm) {
-    if (!hMmAmPm || strlen(hMmAmPm) == 0) return;
- 
-    char buf[24];
-    strncpy(buf, hMmAmPm, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = '\0';
-    char* et = strstr(buf, " ET");
-    if (et) memmove(et, et + 3, strlen(et + 3) + 1);
-    char* est = strstr(buf, " EST");
-    if (est) memmove(est, est + 4, strlen(est + 4) + 1);
-    char* edt = strstr(buf, " EDT");
-    if (edt) memmove(edt, edt + 4, strlen(edt + 4) + 1);
- 
-    char* colon = strchr(buf, ':');
-    if (!colon) return;
-    int hours = atoi(buf);
-    int minutes = atoi(colon + 1);
-    bool isPM = (strstr(buf, "PM") != nullptr || strstr(buf, "pm") != nullptr);
- 
+    int hours, minutes;
+    bool isPM;
+    if (!parseScheduleTime(hMmAmPm, hours, minutes, isPM)) return;
+
     if (hours >= 10) {
         drawChar('0' + (hours / 10), 9, 34, 2);
     } else {
@@ -126,9 +119,8 @@ void drawScheduleTime(const char* hMmAmPm) {
 }
  
 void drawDate(const char* gameDate) {
-    if (!gameDate) return;
     int year, month, day;
-    if (sscanf(gameDate, "%d-%d-%d", &year, &month, &day) != 3) return;
+    if (!parseDateYMD(gameDate, year, month, day)) return;
     year = year % 100;
  
     int monthTens = month / 10, monthOnes = month % 10;
