@@ -1,11 +1,16 @@
 #include "control_server.h"
 #include <WiFi.h>
 #include <WebServer.h>
+#include <ESPmDNS.h>
 #include <string.h>
 #include "nba_teams.h"
 
 AppInput appInput;
 static WebServer server(80);
+
+// Generic hostname only - deliberately no user/location-identifying info in
+// the mDNS broadcast, since anyone on the LAN can see it.
+static const char* MDNS_HOSTNAME = "scoreboard";
 
 static const char* INDEX_HTML = R"HTML(
 <html>
@@ -102,6 +107,13 @@ void beginControlServer() {
     server.begin();
     Serial.print("Control server running: ");
     Serial.println(WiFi.localIP());
+
+    if (MDNS.begin(MDNS_HOSTNAME)) {
+        MDNS.addService("http", "tcp", 80);
+        Serial.printf("mDNS responder started: %s.local\n", MDNS_HOSTNAME);
+    } else {
+        Serial.println("mDNS responder failed to start (app will need manual IP entry)");
+    }
 }
 
 void pollControlServer() {
