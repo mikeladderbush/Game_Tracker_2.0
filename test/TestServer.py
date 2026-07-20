@@ -19,11 +19,21 @@ Endpoints:
                                  malformed_json  - 200 with truncated/invalid JSON body
                                  missing_fields  - 200 with valid JSON but score/clock/period
                                                    keys absent (defaults should kick in, not crash)
+  GET /fake_clock/autoplay/<mode> -> "on" starts a background thread that counts the game
+                               clock down once per real second, occasionally stopping (dead
+                               ball/foul), randomly awarding 1-3 point scores, and advancing
+                               the quarter (resetting the clock) once it hits 0:00. "off" stops
+                               it. Useful for a hands-off live-look trial run.
 """
+import random
+import threading
+import time
+
 from flask import Flask, jsonify, Response
 
 app = Flask(__name__)
 
+state_lock = threading.Lock()
 state = {
     "home_team": "Celtics",
     "away_team": "Wizards",
@@ -33,7 +43,35 @@ state = {
     "clock_seconds": 12 * 60,  # 12:00
     "status": 2,               # 2 = live, matches gameStatus used in game_state.cpp
     "fault": "none",
+    "autoplay": False,
 }
+
+STOPPAGE_CHANCE = 0.15   # dead ball/foul - clock doesn't move this tick
+SCORE_CHANCE = 0.08      # chance of a basket on a tick where the clock does move
+
+def _autoplay_loop():
+    while True:
+        time.sleep(1)
+        with state_lock:
+            if not (state["autoplay"] and state["status"] == 2):
+                continue
+
+            if state["clock_seconds"] <= 0:
+                state["period"] += 1
+                state["clock_seconds"] = 12 * 60 if state["period"] <= 4 else 5 * 60
+                continue
+
+            if random.random() < STOPPAGE_CHANCE:
+                continue
+
+            state["clock_seconds"] -= 1
+
+            if random.random() < SCORE_CHANCE:
+                points = random.choice([1, 2, 3])
+                if random.random() < 0.5:
+                    state["home_score"] += points
+                else:
+                    state["away_score"] += points
 
 def clock_to_pt_duration(total_seconds):
     minutes = total_seconds // 60
@@ -115,7 +153,16 @@ def fault(mode):
     state["fault"] = mode
     return jsonify({"fault": state["fault"]})
 
+@app.route("/fake_clock/autoplay/<mode>")
+def autoplay(mode):
+    if mode not in ("on", "off"):
+        return Response(f"unknown autoplay mode '{mode}', valid: ['on', 'off']", status=400)
+    with state_lock:
+        state["autoplay"] = (mode == "on")
+    return jsonify({"autoplay": state["autoplay"]})
+
 if __name__ == "__main__":
+    threading.Thread(target=_autoplay_loop, daemon=True).start()
     # host="0.0.0.0" so the ESP32 on the same network can actually reach it —
     # 127.0.0.1 would only be reachable from this machine itself.
     app.run(host="0.0.0.0", port=4999, debug=True)
