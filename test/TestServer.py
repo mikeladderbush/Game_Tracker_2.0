@@ -19,11 +19,12 @@ Endpoints:
                                  malformed_json  - 200 with truncated/invalid JSON body
                                  missing_fields  - 200 with valid JSON but score/clock/period
                                                    keys absent (defaults should kick in, not crash)
-  GET /fake_clock/autoplay/<mode> -> "on" starts a background thread that counts the game
-                               clock down once per real second, occasionally stopping (dead
+  GET /fake_clock/autoplay/<mode> -> autoplay is ON by default at startup - the game clock
+                               counts down once per real second, occasionally stopping (dead
                                ball/foul), randomly awarding 1-3 point scores, and advancing
-                               the quarter (resetting the clock) once it hits 0:00. "off" stops
-                               it. Useful for a hands-off live-look trial run.
+                               the quarter (resetting the clock) once it hits 0:00. Hit
+                               .../autoplay/off to pause it (e.g. to manually drive state via
+                               /fake_clock/tick|score|period), ".../on" to resume.
 """
 import random
 import threading
@@ -43,7 +44,7 @@ state = {
     "clock_seconds": 12 * 60,  # 12:00
     "status": 2,               # 2 = live, matches gameStatus used in game_state.cpp
     "fault": "none",
-    "autoplay": False,
+    "autoplay": True,
 }
 
 STOPPAGE_CHANCE = 0.15   # dead ball/foul - clock doesn't move this tick
