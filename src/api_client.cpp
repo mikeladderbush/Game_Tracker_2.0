@@ -52,44 +52,72 @@ String convertUtcToEst(const String& timeStrHHMM) {
     return convertUtcToEstWithOffset(timeStrHHMM, offset);
 }
 
-FetchResult fetchGame(const char* teamName) {
-    FetchResult result;
-
-    HTTPClient http;
-#if TEST_SERVER
-    WiFiClient client;
-    if (!http.begin(client, NBA_SCOREBOARD_URL)) {
-#else
-    WiFiClientSecure client;
-    client.setInsecure();
-    if (!http.begin(client, NBA_SCOREBOARD_URL)) {
-#endif
-        Serial.println("fetchGame: http.begin failed");
-        return result;
-    }
+// Shared HTTP-GET-then-parse-JSON step used by every endpoint below. Only
+// knows about a URL, which client to speak plaintext/TLS with, and an
+// optional auth header - nothing NBA- or team-specific - so it's the seam to
+// extend if another API/data source gets added later.
+static bool fetchJson(HTTPClient& http, const char* authHeader, JsonDocument& outDoc) {
     http.useHTTP10(true);
-    http.addHeader("User-Agent", "Mozilla/5.0 (compatible; ESP32)");
+    if (authHeader) {
+        http.addHeader("Authorization", authHeader);
+    } else {
+        http.addHeader("User-Agent", "Mozilla/5.0 (compatible; ESP32)");
+    }
 
     int httpCode = http.GET();
     if (httpCode != HTTP_CODE_OK) {
-        Serial.printf("fetchGame: GET failed, code %d\n", httpCode);
+        Serial.printf("fetchJson: GET failed, code %d\n", httpCode);
         http.end();
-        return result;
+        return false;
     }
 
-    JsonDocument doc;
-    DeserializationError err = deserializeJson(doc, http.getStream());
+    DeserializationError err = deserializeJson(outDoc, http.getStream());
     http.end();
-
     if (err) {
-        Serial.printf("fetchGame: JSON parse error: %s\n", err.c_str());
-        return result;
+        Serial.printf("fetchJson: JSON parse error: %s\n", err.c_str());
+        return false;
     }
+    return true;
+}
 
-    JsonArray games = doc["scoreboard"]["games"].as<JsonArray>();
-    for (JsonObject game : games) {
-        JsonObject home = game["homeTeam"];
-        JsonObject away = game["awayTeam"];
+static bool fetchJsonPlain(const char* url, JsonDocument& outDoc) {
+    WiFiClient client;
+    HTTPClient http;
+    if (!http.begin(client, url)) {
+        Serial.println("fetchJson: http.begin failed");
+        return false;
+    }
+    return fetchJson(http, nullptr, outDoc);
+}
+
+static bool fetchJsonSecure(const char* url, const char* authHeader, JsonDocument& outDoc) {
+    WiFiClientSecure client;
+    client.setInsecure();
+    HTTPClient http;
+    if (!http.begin(client, url)) {
+        Serial.println("fetchJson: http.begin failed");
+        return false;
+    }
+    return fetchJson(http, authHeader, outDoc);
+}
+
+JsonDocument fetchScoreboardJson() {
+    JsonDocument doc;
+#if TEST_SERVER
+    fetchJsonPlain(NBA_SCOREBOARD_URL, doc);
+#else
+    fetchJsonSecure(NBA_SCOREBOARD_URL, nullptr, doc);
+#endif
+    return doc;
+}
+
+FetchResult parseGame(const JsonDocument& doc, const char* teamName) {
+    FetchResult result;
+
+    JsonArrayConst games = doc["scoreboard"]["games"].as<JsonArrayConst>();
+    for (JsonObjectConst game : games) {
+        JsonObjectConst home = game["homeTeam"];
+        JsonObjectConst away = game["awayTeam"];
         const char* homeTeam = home["teamName"] | "";
         const char* awayTeam = away["teamName"] | "";
 
@@ -125,66 +153,56 @@ FetchResult fetchGame(const char* teamName) {
     return result;
 }
 
-NextGameResult getNextGame(const char* teamName) {
-    NextGameResult result;
+FetchResult fetchGame(const char* teamName) {
+    JsonDocument doc = fetchScoreboardJson();
+    return parseGame(doc, teamName);
+}
+
+JsonDocument fetchNextGameJson(const char* teamName) {
+    JsonDocument doc;
 
     int teamId = teamNameToId(teamName);
     String startDate = getCurrentDate();
-
     String url = String(BALLDONTLIE_BASE) + "?team_ids[]=" + teamId + "&start_date=" + startDate;
+    String authHeader = String("Bearer ") + BALLDONTLIE_TOKEN;
 
     for (int attempt = 0; attempt < 5; attempt++) {
-        WiFiClientSecure client;
-        client.setInsecure();
-
-        HTTPClient http;
-        if (!http.begin(client, url)) {
-            delay(1000);
-            continue;
+        if (fetchJsonSecure(url.c_str(), authHeader.c_str(), doc)) {
+            return doc;
         }
-        http.useHTTP10(true);
-        http.addHeader("Authorization", String("Bearer ") + BALLDONTLIE_TOKEN);
+        delay(1000);
+    }
 
-        int httpCode = http.GET();
-        if (httpCode != HTTP_CODE_OK) {
-            http.end();
-            delay(1000);
-            continue;
-        }
+    return doc;
+}
 
-        JsonDocument doc;
-        DeserializationError err = deserializeJson(doc, http.getStream());
-        http.end();
-
-        if (err) {
-            Serial.printf("getNextGame: JSON parse error: %s\n", err.c_str());
-            delay(1000);
-            continue;
-        }
-
-        JsonArray games = doc["data"].as<JsonArray>();
-        if (games.isNull() || games.size() == 0) {
-            return result;
-        }
-
-        JsonObject game = games[0];
-        const char* opponentName = game["visitor_team"]["full_name"] | "";
-        const char* teamFullName = game["home_team"]["full_name"] | "";
-        const char* dateStr = game["date"] | "";
-        const char* datetimeStr = game["datetime"] | "";
-
-        String hhmm = String(datetimeStr).substring(11, 16);
-
-        result.found = true;
-        strlcpy(result.dateStr, dateStr, sizeof(result.dateStr));
-        strlcpy(result.teamFullName, teamFullName, sizeof(result.teamFullName));
-        strlcpy(result.opponentFullName, opponentName, sizeof(result.opponentFullName));
-        convertUtcToEst(hhmm).toCharArray(result.timeStr, sizeof(result.timeStr));
-
+NextGameResult parseNextGame(const JsonDocument& doc) {
+    NextGameResult result;
+    JsonArrayConst games = doc["data"].as<JsonArrayConst>();
+    if (games.isNull() || games.size() == 0) {
         return result;
     }
 
+    JsonObjectConst game = games[0];
+    const char* opponentName = game["visitor_team"]["full_name"] | "";
+    const char* teamFullName = game["home_team"]["full_name"] | "";
+    const char* dateStr = game["date"] | "";
+    const char* datetimeStr = game["datetime"] | "";
+
+    String hhmm = String(datetimeStr).substring(11, 16);
+
+    result.found = true;
+    strlcpy(result.dateStr, dateStr, sizeof(result.dateStr));
+    strlcpy(result.teamFullName, teamFullName, sizeof(result.teamFullName));
+    strlcpy(result.opponentFullName, opponentName, sizeof(result.opponentFullName));
+    convertUtcToEst(hhmm).toCharArray(result.timeStr, sizeof(result.timeStr));
+
     return result;
+}
+
+NextGameResult getNextGame(const char* teamName) {
+    JsonDocument doc = fetchNextGameJson(teamName);
+    return parseNextGame(doc);
 }
 
 // clockStrToSecs, secsToMMSS, teamNameToId moved to api_formatting.cpp -
