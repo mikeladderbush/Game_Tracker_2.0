@@ -1,4 +1,6 @@
 #include "game_state.h"
+#include "../common/time_formatting.h"
+#include "../common/ntp_time.h"
 #include <Arduino.h>
 #include <string.h>
 

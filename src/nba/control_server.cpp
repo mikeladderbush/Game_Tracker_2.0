@@ -91,7 +91,7 @@ void beginControlServer() {
         strncpy(buf, name.c_str(), sizeof(buf) - 1);
         buf[sizeof(buf) - 1] = '\0';
 
-        if (!teamFromAbbr(buf)) {
+        if (!nbaTeamFromAbbr(buf)) {
             // Shouldn't happen through the dropdown UI, but the server has no
             // auth, so guard against a bad value hitting this endpoint directly.
             server.send(400, "text/plain", "Invalid selection - please try again.");

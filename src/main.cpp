@@ -2,16 +2,17 @@
 #include <WiFi.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include "display.h"
-#include "control_server.h"
-#include "api_client.h"
-#include "game_state.h"
-#include "draw_tools.h"
-#include "nba_teams.h"
+#include "common/display.h"
+#include "common/draw_tools.h"
+#include "common/ntp_time.h"
+#include "nba/control_server.h"
+#include "nba/game_state.h"
+#include "nba/nba_menu.h"
+#include "nba/nba_teams.h"
 #include "secrets.h"
 
 static GameStateMachine gameStateMachine;
-static const NbaTeam* selectedTeam = nullptr;
+static const TeamSprite* selectedTeam = nullptr;
 
 static void stateTask(void* pv) {
     unsigned long lastSync = millis();
@@ -43,7 +44,7 @@ static void renderTask(void* pv) {
 
         if (gameStateMachine.isInGame()) {
             GameFrame frame = gameStateMachine.currentFrame();
-            const NbaTeam* opp = teamFromString(frame.opponent);
+            const TeamSprite* opp = nbaTeamFromString(frame.opponent);
 
             if (selectedTeam) drawLogo(*selectedTeam, 0, 0, 0);
             if (opp) drawLogo(*opp, 0, 0, 1);
@@ -52,7 +53,7 @@ static void renderTask(void* pv) {
             if (frame.period >= 1) drawQuarter(frame.period);
         } else {
             ScheduledGame sched = gameStateMachine.scheduledGame();
-            const NbaTeam* opp = teamFromString(sched.opponentFullName);
+            const TeamSprite* opp = nbaTeamFromString(sched.opponentFullName);
 
             if (selectedTeam && opp) {
                 drawFutureGame(sched.dateStr, sched.timeStr, *selectedTeam, *opp);
@@ -100,7 +101,7 @@ void setup() {
         pollControlServer();
 
         if (appInput.teamPending) {
-            selectedTeam = teamFromAbbr(appInput.team);
+            selectedTeam = nbaTeamFromAbbr(appInput.team);
             appInput.teamPending = false;
             if (selectedTeam) menuActive = false;
         }

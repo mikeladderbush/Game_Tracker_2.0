@@ -39,7 +39,7 @@ static const uint16_t celtics_palette[6] = {
     0x0000,0xffff,0xbcaa,0x91c4,0x03c6,0xffff
 };
 
-const NbaTeam celtics = {"Celtics", celtics_pattern, celtics_palette, 32, 32};
+const TeamSprite celtics = {"Celtics", celtics_pattern, celtics_palette, 32, 32};
 
 static const uint8_t cavaliers_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -80,7 +80,7 @@ static const uint16_t cavaliers_palette[5] = {
     0x0000,0x0006,0x04d9,0x00e8,0x0000
 };
 
-const NbaTeam cavaliers = {"Cavaliers", cavaliers_pattern, cavaliers_palette, 32, 32};
+const TeamSprite cavaliers = {"Cavaliers", cavaliers_pattern, cavaliers_palette, 32, 32};
 
 static const uint8_t trailBlazers_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -121,7 +121,7 @@ static const uint16_t trailBlazers_palette[4] = {
     0x0000,0x0006,0x0000,0xffff
 };
 
-const NbaTeam trailBlazers = {"Trail Blazers", trailBlazers_pattern, trailBlazers_palette, 32, 32};
+const TeamSprite trailBlazers = {"Trail Blazers", trailBlazers_pattern, trailBlazers_palette, 32, 32};
 
 static const uint8_t thunder_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -162,7 +162,7 @@ static const uint16_t thunder_palette[6] = {
     0x0000,0xffff,0xc800,0xfe60,0x019f,0x04df
 };
 
-const NbaTeam thunder = {"Thunder", thunder_pattern, thunder_palette, 32, 32};
+const TeamSprite thunder = {"Thunder", thunder_pattern, thunder_palette, 32, 32};
 
 static const uint8_t nets_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -203,7 +203,7 @@ static const uint16_t nets_palette[4] = {
     0x0000,0xffff,0x0000,0xf800
 };
 
-const NbaTeam nets = {"Nets", nets_pattern, nets_palette, 32, 32};
+const TeamSprite nets = {"Nets", nets_pattern, nets_palette, 32, 32};
 
 static const uint8_t knicks_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -244,7 +244,7 @@ static const uint16_t knicks_palette[6] = {
     0x0000,0x0000,0x019f,0xf800,0xffff,0x0000
 };
 
-const NbaTeam knicks = {"Knicks", knicks_pattern, knicks_palette, 32, 32};
+const TeamSprite knicks = {"Knicks", knicks_pattern, knicks_palette, 32, 32};
 
 static const uint8_t sixers_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -285,7 +285,7 @@ static const uint16_t sixers_palette[3] = {
     0x0000,0x001f,0xf800
 };
 
-const NbaTeam sixers = {"Sixers", sixers_pattern, sixers_palette, 32, 32};
+const TeamSprite sixers = {"Sixers", sixers_pattern, sixers_palette, 32, 32};
 
 static const uint8_t raptors_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -326,7 +326,7 @@ static const uint16_t raptors_palette[2] = {
     0x0000,0x001f
 };
 
-const NbaTeam raptors = {"Raptors", raptors_pattern, raptors_palette, 32, 32};
+const TeamSprite raptors = {"Raptors", raptors_pattern, raptors_palette, 32, 32};
 
 static const uint8_t bulls_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -367,7 +367,7 @@ static const uint16_t bulls_palette[4] = {
     0x0000,0x001f,0xffff,0x0000
 };
 
-const NbaTeam bulls = {"Bulls", bulls_pattern, bulls_palette, 32, 32};
+const TeamSprite bulls = {"Bulls", bulls_pattern, bulls_palette, 32, 32};
 
 static const uint8_t pistons_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -408,7 +408,7 @@ static const uint16_t pistons_palette[4] = {
     0x0000,0xf800,0x001f,0xffff
 };
 
-const NbaTeam pistons = {"Pistons", pistons_pattern, pistons_palette, 32, 32};
+const TeamSprite pistons = {"Pistons", pistons_pattern, pistons_palette, 32, 32};
 
 static const uint8_t pacers_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -449,7 +449,7 @@ static const uint16_t pacers_palette[4] = {
     0x0000,0x9cd3,0xf800,0x067f
 };
 
-const NbaTeam pacers = {"Pacers", pacers_pattern, pacers_palette, 32, 32};
+const TeamSprite pacers = {"Pacers", pacers_pattern, pacers_palette, 32, 32};
 
 static const uint8_t bucks_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -490,7 +490,7 @@ static const uint16_t bucks_palette[3] = {
     0x0000,0x0320,0xffff
 };
 
-const NbaTeam bucks = {"Bucks", bucks_pattern, bucks_palette, 32, 32};
+const TeamSprite bucks = {"Bucks", bucks_pattern, bucks_palette, 32, 32};
 
 static const uint8_t hawks_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,2,2,2,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -531,7 +531,7 @@ static const uint16_t hawks_palette[3] = {
     0x0000,0x001f,0xffff
 };
 
-const NbaTeam hawks = {"Hawks", hawks_pattern, hawks_palette, 32, 32};
+const TeamSprite hawks = {"Hawks", hawks_pattern, hawks_palette, 32, 32};
 
 static const uint8_t hornets_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -572,7 +572,7 @@ static const uint16_t hornets_palette[3] = {
     0x0000,0xf800,0xffff
 };
 
-const NbaTeam hornets = {"Hornets", hornets_pattern, hornets_palette, 32, 32};
+const TeamSprite hornets = {"Hornets", hornets_pattern, hornets_palette, 32, 32};
 
 static const uint8_t heat_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,
@@ -613,7 +613,7 @@ static const uint16_t heat_palette[6] = {
     0x0000,0x001f,0x04df,0x0000,0x001f,0xffff
 };
 
-const NbaTeam heat = {"Heat", heat_pattern, heat_palette, 32, 32};
+const TeamSprite heat = {"Heat", heat_pattern, heat_palette, 32, 32};
 
 static const uint8_t magic_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,
@@ -654,7 +654,7 @@ static const uint16_t magic_palette[4] = {
     0x0000,0x8c51,0xf800,0xfcc0
 };
 
-const NbaTeam magic = {"Magic", magic_pattern, magic_palette, 32, 32};
+const TeamSprite magic = {"Magic", magic_pattern, magic_palette, 32, 32};
 
 static const uint8_t wizards_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -695,7 +695,7 @@ static const uint16_t wizards_palette[10] = {
     0x0000,0xf800,0x001f,0x8c51,0xf81f,0xf81f,0xf81f,0xf81f,0xf81f,0xf81f
 };
 
-const NbaTeam wizards = {"Wizards", wizards_pattern, wizards_palette, 32, 32};
+const TeamSprite wizards = {"Wizards", wizards_pattern, wizards_palette, 32, 32};
 
 static const uint8_t nuggets_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -736,7 +736,7 @@ static const uint16_t nuggets_palette[5] = {
     0x0000,0xf800,0x045f,0x001f,0xffff
 };
 
-const NbaTeam nuggets = {"Nuggets", nuggets_pattern, nuggets_palette, 32, 32};
+const TeamSprite nuggets = {"Nuggets", nuggets_pattern, nuggets_palette, 32, 32};
 
 static const uint8_t timberwolves_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -777,7 +777,7 @@ static const uint16_t timberwolves_palette[8] = {
     0x0000,0xf800,0x8c51,0x07e0,0x6000,0xf81f,0xf81f,0xf81f
 };
 
-const NbaTeam timberwolves = {"Timberwolves", timberwolves_pattern, timberwolves_palette, 32, 32};
+const TeamSprite timberwolves = {"Timberwolves", timberwolves_pattern, timberwolves_palette, 32, 32};
 
 static const uint8_t jazz_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -818,7 +818,7 @@ static const uint16_t jazz_palette[2] = {
     0x0000,0xffff
 };
 
-const NbaTeam jazz = {"Jazz", jazz_pattern, jazz_palette, 32, 32};
+const TeamSprite jazz = {"Jazz", jazz_pattern, jazz_palette, 32, 32};
 
 static const uint8_t warriors_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -859,7 +859,7 @@ static const uint16_t warriors_palette[6] = {
     0x0000,0x07ff,0xf800,0xf81f,0xf81f,0xf81f
 };
 
-const NbaTeam warriors = {"Warriors", warriors_pattern, warriors_palette, 32, 32};
+const TeamSprite warriors = {"Warriors", warriors_pattern, warriors_palette, 32, 32};
 
 static const uint8_t clippers_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -900,7 +900,7 @@ static const uint16_t clippers_palette[5] = {
     0x0000,0xf800,0xffff,0xf800,0x001f
 };
 
-const NbaTeam clippers = {"Clippers", clippers_pattern, clippers_palette, 32, 32};
+const TeamSprite clippers = {"Clippers", clippers_pattern, clippers_palette, 32, 32};
 
 static const uint8_t lakers_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -941,7 +941,7 @@ static const uint16_t lakers_palette[3] = {
     0x0000,0x045f,0x6006
 };
 
-const NbaTeam lakers = {"Lakers", lakers_pattern, lakers_palette, 32, 32};
+const TeamSprite lakers = {"Lakers", lakers_pattern, lakers_palette, 32, 32};
 
 static const uint8_t suns_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -982,7 +982,7 @@ static const uint16_t suns_palette[5] = {
     0x0000,0x0000,0x02bf,0x067f,0x067f
 };
 
-const NbaTeam suns = {"Suns", suns_pattern, suns_palette, 32, 32};
+const TeamSprite suns = {"Suns", suns_pattern, suns_palette, 32, 32};
 
 static const uint8_t kings_pattern[1024] = {
     0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,
@@ -1023,7 +1023,7 @@ static const uint16_t kings_palette[3] = {
     0x0000,0x6006,0x8c51
 };
 
-const NbaTeam kings = {"Kings", kings_pattern, kings_palette, 32, 32};
+const TeamSprite kings = {"Kings", kings_pattern, kings_palette, 32, 32};
 
 static const uint8_t mavericks_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1064,7 +1064,7 @@ static const uint16_t mavericks_palette[4] = {
     0x0000,0xf800,0x0000,0xffff
 };
 
-const NbaTeam mavericks = {"Mavericks", mavericks_pattern, mavericks_palette, 32, 32};
+const TeamSprite mavericks = {"Mavericks", mavericks_pattern, mavericks_palette, 32, 32};
 
 static const uint8_t rockets_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1105,7 +1105,7 @@ static const uint16_t rockets_palette[2] = {
     0x0000,0x001f
 };
 
-const NbaTeam rockets = {"Rockets", rockets_pattern, rockets_palette, 32, 32};
+const TeamSprite rockets = {"Rockets", rockets_pattern, rockets_palette, 32, 32};
 
 static const uint8_t grizzlies_pattern[1024] = {
     0,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,
@@ -1146,7 +1146,7 @@ static const uint16_t grizzlies_palette[10] = {
     0x0000,0xccd3,0x04df,0x6180,0xffff,0xf81f,0xf81f,0xf81f,0xf81f,0xf81f
 };
 
-const NbaTeam grizzlies = {"Grizzlies", grizzlies_pattern, grizzlies_palette, 32, 32};
+const TeamSprite grizzlies = {"Grizzlies", grizzlies_pattern, grizzlies_palette, 32, 32};
 
 static const uint8_t pelicans_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1187,7 +1187,7 @@ static const uint16_t pelicans_palette[9] = {
     0x0000,0x001f,0x04d9,0x3000,0xf800,0xf81f,0xf81f,0xf81f,0xf81f
 };
 
-const NbaTeam pelicans = {"Pelicans", pelicans_pattern, pelicans_palette, 32, 32};
+const TeamSprite pelicans = {"Pelicans", pelicans_pattern, pelicans_palette, 32, 32};
 
 static const uint8_t spurs_pattern[1024] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1228,4 +1228,4 @@ static const uint16_t spurs_palette[3] = {
     0x0000,0x8c51,0x1082
 };
 
-const NbaTeam spurs = {"Spurs", spurs_pattern, spurs_palette, 32, 32};
+const TeamSprite spurs = {"Spurs", spurs_pattern, spurs_palette, 32, 32};

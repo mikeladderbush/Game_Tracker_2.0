@@ -1,7 +1,7 @@
 #include <unity.h>
 #include <cstring>
 #include <cstdio>
-#include "glyph_data.h"
+#include "common/glyph_data.h"
 
 void setUp() {}
 void tearDown() {}

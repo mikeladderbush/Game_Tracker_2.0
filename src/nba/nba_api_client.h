@@ -1,7 +1,7 @@
 #pragma once
-#include <Arduino.h>
 #include <ArduinoJson.h>
-#include "api_formatting.h"
+#include "../common/time_formatting.h"
+#include "nba_team_ids.h"
 
 // Results collected from the live game API are translated from JSON into this struct.
 struct FetchResult {
@@ -24,10 +24,6 @@ struct NextGameResult {
     char opponentFullName[32] = {0};
 };
 
-bool syncTime();
-String getCurrentDate();
-String convertUtcToEst(const String& timeStrHHMM);
-
 // Each endpoint is split into a network fetch (returns the raw response as a
 // JsonDocument, or an empty one on failure) and a pure parse (JsonDocument ->
 // result struct, no network/HTTPClient involved). The parse half has no
@@ -42,6 +38,3 @@ FetchResult fetchGame(const char* teamName);
 JsonDocument fetchNextGameJson(const char* teamName);
 NextGameResult parseNextGame(const JsonDocument& doc);
 NextGameResult getNextGame(const char* teamName);
-// clockStrToSecs, secsToMMSS, teamNameToId now live in api_formatting.h
-// (included above) - re-exposed here unchanged so existing callers don't
-// need to change their #include.
