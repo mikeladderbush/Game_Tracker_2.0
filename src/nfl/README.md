@@ -1,34 +1,20 @@
-# NFL support (scaffolded, not implemented)
+# NFL support (schedule + odds screen built, not wired into main.cpp yet)
 
-Mirrors `src/nba/`'s structure. See `../../NFL_SUPPORT_ROADMAP.md` at the
-project root for status/research - as of this pass, function signatures and
-data structures exist as stubs, but no real fetch/parse/render logic is
-implemented yet.
+See `../../NFL_SUPPORT_ROADMAP.md` at the project root for full status.
 
-- `nfl_teams.h/.cpp` - team lookup, using `common::TeamSprite` (same struct
-  NBA uses). Stubbed: always returns `nullptr`, no team data exists yet.
-- `nfl_team_data.cpp` - landing file for the 32 teams' sprite/palette data
-  (roadmap step 10). Empty - this is real pixel-art/palette authoring work,
-  not fabricated here.
-- `nfl_api_client.h/.cpp` - ESPN API fetch/parse, built on
-  `../common/http_fetch.h` (same pattern `nba/nba_api_client.cpp` uses).
-  `fetchNflWeekScheduleJson()`/`fetchNflOddsJson()` are real, working calls
-  against confirmed-working URLs. `parseNflSchedule()`/`parseNflOdds()` are
-  stubs (roadmap steps 4 and 6) - deliberately not implemented since the
-  exact regular-season response shape hasn't been confirmed yet (only a
-  preseason/Hall-of-Fame-game response has been checked so far).
-- `nfl_menu.h/.cpp` - `drawScheduleList()` stub for the not-yet-designed
-  schedule-list display (roadmap steps 8-9). Signature is a placeholder
-  guess, not a committed design - this is a new kind of view (multiple
-  games at once), not a reuse of `nba/nba_menu.cpp`'s single-team grid.
-- No game-state/schedule module yet - deferred until the above is fleshed
-  out enough to know whether NBA's `game_state.h/.cpp` state-machine shape
-  (poll live vs. scheduled, clock catch-up) is worth lifting into `common/`,
-  or whether NFL's shape (a weekly list, not a single live clock) warrants
-  its own independent module instead.
+## What's real
 
-Drawing (`common/draw_tools.h`), glyph rendering (`common/glyph_data.h`),
-display init (`common/display.h`), generic HTTP fetch (`common/http_fetch.h`),
-NTP time (`common/ntp_time.h`), and generic formatting
-(`common/time_formatting.h`, `common/draw_formatting.h`) are all already
-sport-agnostic and used as-is by the stubs above - no changes needed there.
+- `nfl_api_client.h/.cpp` - `fetchNflWeekScheduleJson()` is a real, working call against ESPN's scoreboard endpoint (`TEST_SERVER`-gated, same pattern as `nba/nba_api_client.cpp`).
+- `nfl_schedule_parser.cpp` - `parseNflSchedule()` really parses schedule + embedded odds (confirmed: odds arrive in the same response, no second call needed). Unit tested in `test/test_nfl_schedule/`.
+- `nfl_team_colors.h/.cpp` - real RGB565 accent colors for all 32 teams, sourced from ESPN's own `team.color`/`team.alternateColor`. Unit tested in `test/test_nfl_team_colors/`.
+- `nfl_menu.h/.cpp` - `drawScheduleList()` renders one matchup per page on the confirmed 64x64 panel: team-colored abbreviation chips with a white border, "VS." separator, favorite/spread and over/under below. First-draft layout, not yet checked on real hardware.
+- `TestServer.py`'s `/fake_nfl_week` endpoint, for offline testing against a realistic fixture.
+
+## What's still stubbed / not started
+
+- `nfl_teams.h/.cpp`, `nfl_team_data.cpp` - full pixel-art logo lookup, same shape as `nba/nba_teams.h`'s `TeamSprite`. Still returns `nullptr` / empty - this is a separate, much larger manual task than the color-chip approach `nfl_menu.cpp` actually uses today, and isn't needed for the schedule screen.
+- Nothing in `main.cpp`/`nba/control_server.cpp` can switch into NFL mode yet - `drawScheduleList()` works and is tested standalone, but there's no runtime path that calls it. Needs a sport-selection UX decision that hasn't been made.
+- No auto-paging/timer to cycle `drawScheduleList()`'s `pageIndex` through a full week's games - caller-driven, nothing drives it yet.
+- Kickoff time isn't displayed (data's captured in `NflMatchup.kickoffIso`, just not rendered).
+
+Drawing (`common/draw_tools.h`, including the newer `drawText`/`drawCharColored` colored-text primitives), glyph rendering (`common/glyph_data.h` - now includes F/J/V/period, added for NFL abbreviations and odds decimals), display init (`common/display.h`), generic HTTP fetch (`common/http_fetch.h`), and NTP time (`common/ntp_time.h`) are all sport-agnostic and used as-is.

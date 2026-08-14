@@ -1,9 +1,11 @@
 #pragma once
 #include "nfl_api_client.h"
 
-// TODO (NFL_SUPPORT_ROADMAP.md steps 8-9): the schedule-list display isn't
-// designed yet - this is a new kind of view (multiple games at once), not
-// an extension of nba/nba_menu.cpp's single-team-selection grid, and won't
-// all fit on a 64x32 display without some paging/scrolling scheme. Signature
-// below is a placeholder guess, not a committed design.
-void drawScheduleList(const NflWeekSchedule& schedule, int scrollOffset);
+// Renders one matchup (schedule.games[pageIndex]) full-screen: away/home
+// team abbreviations in team colors with a white border ("chips"), a "VS."
+// separator, and the favorite/spread/over-under below in white. Caller is
+// responsible for cycling pageIndex through [0, schedule.count) over time -
+// this function only draws a single page, it doesn't do any timing/paging
+// itself. Laid out for the confirmed 64x64 panel (see display.cpp's 5
+// address pins). First-draft layout - not yet checked on real hardware.
+void drawScheduleList(const NflWeekSchedule& schedule, int pageIndex);

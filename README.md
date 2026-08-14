@@ -1,6 +1,6 @@
 # NBA Scoreboard (Game Tracker 2.0)
 
-A 64x32 HUB75 LED matrix scoreboard, driven by an [Adafruit MatrixPortal ESP32-S3](https://www.adafruit.com/product/5778), that tracks a chosen NBA team's live score and clock, falls back to the next scheduled game when nothing's live, and can be controlled from a phone over the local network.
+A 64x64 HUB75 LED matrix scoreboard, driven by an [Adafruit MatrixPortal ESP32-S3](https://www.adafruit.com/product/5778), that tracks a chosen NBA team's live score and clock, falls back to the next scheduled game when nothing's live, and can be controlled from a phone over the local network.
 
 ## Features
 
@@ -10,12 +10,13 @@ A 64x32 HUB75 LED matrix scoreboard, driven by an [Adafruit MatrixPortal ESP32-S
 - Local HTTP control server for power on/off and team selection, reachable from a browser or the companion Android app
 - mDNS advertisement (`scoreboard.local`) so the companion app can auto-discover the board's IP instead of requiring manual entry
 - A local Flask test server (`test/TestServer.py`) that mimics the live scoreboard API, with fault-injection and an autoplay mode that runs a simulated game clock — for developing/testing without a live NBA game to point at
-- Native (host-machine) Unity unit tests for all the pure logic — clock parsing/formatting, team lookup, game state transitions, glyph coverage — no board required
+- Native (host-machine) Unity unit tests for all the pure logic — clock parsing/formatting, team lookup, game state transitions, glyph coverage, NFL schedule parsing — no board required
+- NFL weekly schedule screen (in progress): every game for the week, team abbreviations in real team colors, favorite/spread/over-under below — see `src/nfl/` and `NFL_SUPPORT_ROADMAP.md`
 
 ## Hardware
 
 - Adafruit MatrixPortal ESP32-S3
-- 64x32 HUB75 RGB LED matrix panel
+- 64x64 HUB75 RGB LED matrix panel (5 address lines wired in `common/display.cpp` - per Adafruit_Protomatter's `height = 2^addrCount × 2`, that's a 64-row/1-32-scan panel, not the more common 4-address-line 64x32)
 
 ## Project layout
 
@@ -45,11 +46,16 @@ src/
     game_state.cpp/.h            - state machine: live game vs. scheduled game, clock catch-up
     control_server.cpp/.h        - local HTTP control server + mDNS
 
-  nfl/
-    README.md                    - not implemented yet; intended mirror of nba/
+  nfl/                         - weekly schedule + odds screen (in progress, see NFL_SUPPORT_ROADMAP.md)
+    nfl_api_client.cpp/.h        - ESPN scoreboard HTTP fetch (odds come embedded - no separate call)
+    nfl_schedule_parser.cpp      - JSON -> NflWeekSchedule parsing, unit tested
+    nfl_team_colors.cpp/.h       - real per-team RGB565 accent colors (32 teams), unit tested
+    nfl_menu.cpp/.h               - drawScheduleList(): one matchup per page, team-colored abbreviations
+    nfl_teams.cpp/.h, nfl_team_data.cpp - full-logo lookup, stubbed (no sprite art authored yet)
+    README.md                    - status notes for this folder
 
 test/
-  TestServer.py        - local Flask stand-in for the live scoreboard API
+  TestServer.py        - local Flask stand-in for the live scoreboard API (NBA + NFL)
   TEST_PLAN.md          - test rationale and coverage notes
   test_*/               - native Unity test suites (PlatformIO `native` env)
 ```

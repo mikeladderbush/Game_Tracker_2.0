@@ -45,6 +45,12 @@ static const uint8_t glyph_41_pattern[20] = {2,0,2,0,2,0,2,0,2,0,2,0,2,0,2,0,0,2
 static const uint8_t glyph_42_pattern[25] = {2,0,0,0,2,2,0,0,0,2,2,0,2,0,2,2,0,2,0,2,0,2,0,2,0};
 static const uint8_t glyph_43_pattern[20] = {2,0,2,0,2,0,2,0,0,2,0,0,2,0,2,0,2,0,2,0};
 static const uint8_t glyph_44_pattern[20] = {2,0,2,0,2,0,2,0,0,2,0,0,0,2,0,0,0,2,0,0};
+// Added for NFL team abbreviations (F/J/V weren't needed by any NBA team
+// name or existing UI text) and odds display (decimal spread/total values).
+static const uint8_t glyph_45_pattern[20] = {2,2,2,0,2,0,0,0,2,2,2,0,2,0,0,0,2,0,0,0};
+static const uint8_t glyph_46_pattern[20] = {0,0,2,0,0,0,2,0,0,0,2,0,2,0,2,0,0,2,0,0};
+static const uint8_t glyph_47_pattern[20] = {2,0,0,2,2,0,0,2,2,0,0,2,0,2,2,0,0,0,2,0};
+static const uint8_t glyph_48_pattern[15] = {0,0,0,0,0,0,0,0,0,0,0,0,0,2,0};
 
 const GlyphEntry GLYPH_TABLE[] = {
     {'0', 4, 5, glyph_0_pattern},
@@ -92,5 +98,9 @@ const GlyphEntry GLYPH_TABLE[] = {
     {'W', 5, 5, glyph_42_pattern},
     {'X', 4, 5, glyph_43_pattern},
     {'Y', 4, 5, glyph_44_pattern},
+    {'F', 4, 5, glyph_45_pattern},
+    {'J', 4, 5, glyph_46_pattern},
+    {'V', 4, 5, glyph_47_pattern},
+    {'.', 3, 5, glyph_48_pattern},
 };
-const size_t GLYPH_TABLE_SIZE = 45;
+const size_t GLYPH_TABLE_SIZE = 49;

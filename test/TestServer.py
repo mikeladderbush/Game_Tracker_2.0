@@ -25,6 +25,11 @@ Endpoints:
                                the quarter (resetting the clock) once it hits 0:00. Hit
                                .../autoplay/off to pause it (e.g. to manually drive state via
                                /fake_clock/tick|score|period), ".../on" to resume.
+  GET /fake_nfl_week       -> fixed set of NFL matchups, same JSON shape (events[].id/date/
+                               competitions[0].competitors[]/status/odds[]) confirmed against a
+                               real site.api.espn.com response for parseNflSchedule() to parse.
+                               One game deliberately has no "odds" key, to exercise the
+                               hasOdds=false path.
 """
 import random
 import threading
@@ -161,6 +166,35 @@ def autoplay(mode):
     with state_lock:
         state["autoplay"] = (mode == "on")
     return jsonify({"autoplay": state["autoplay"]})
+
+def _nfl_matchup(event_id, date, away, home, spread=None, over_under=None, home_favorite=True):
+    competition = {
+        "competitors": [
+            {"homeAway": "home", "team": {"abbreviation": home}},
+            {"homeAway": "away", "team": {"abbreviation": away}},
+        ],
+        "status": {"type": {"state": "pre"}},
+    }
+    if spread is not None:
+        competition["odds"] = [{
+            "spread": -spread if home_favorite else spread,
+            "overUnder": over_under,
+            "homeTeamOdds": {"favorite": home_favorite},
+            "awayTeamOdds": {"favorite": not home_favorite},
+        }]
+    return {"id": event_id, "date": date, "competitions": [competition]}
+
+NFL_WEEK_FIXTURE = [
+    _nfl_matchup("401872656", "2026-09-10T00:20Z", "NE", "SEA", spread=3.5, over_under=44.5, home_favorite=True),
+    _nfl_matchup("401872657", "2026-09-07T17:00Z", "NYJ", "PIT", spread=2.5, over_under=38.0, home_favorite=True),
+    _nfl_matchup("401872658", "2026-09-07T17:00Z", "GB", "CHI", spread=6.0, over_under=41.5, home_favorite=False),
+    # No odds posted yet for this one - exercises hasOdds=false.
+    _nfl_matchup("401872659", "2026-09-07T20:25Z", "SF", "DAL"),
+]
+
+@app.route("/fake_nfl_week")
+def fake_nfl_week():
+    return jsonify({"week": {"number": 1}, "events": NFL_WEEK_FIXTURE})
 
 if __name__ == "__main__":
     threading.Thread(target=_autoplay_loop, daemon=True).start()
