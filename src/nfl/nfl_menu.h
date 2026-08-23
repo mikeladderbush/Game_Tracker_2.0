@@ -2,7 +2,7 @@
 #include "nfl_api_client.h"
 
 // Renders one matchup (schedule.games[pageIndex]) full-screen, stacked
-// vertically: away abbreviation (3x size), "VS.", home abbreviation (3x),
+// vertically: away abbreviation (2x size), "VS.", home abbreviation (2x),
 // favorite+spread, over/under - each abbreviation centered horizontally,
 // drawn directly in team colors with no background/border, each letter
 // alternating between the team's two colors. Caller is responsible for

@@ -10,7 +10,7 @@ static const uint16_t WHITE = 0xffff;
 // True "1.5x" isn't achievable - the renderer only supports integer
 // pixel-block scaling (see drawSprite) - so ODDS_SIZE lands on the nearest
 // available step.
-static const uint8_t ABBR_SIZE = 3;
+static const uint8_t ABBR_SIZE = 2;
 static const uint8_t VS_SIZE = 1;
 static const uint8_t ODDS_SIZE = 2;
 

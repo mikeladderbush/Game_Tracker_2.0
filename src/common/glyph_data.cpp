@@ -50,7 +50,11 @@ static const uint8_t glyph_44_pattern[20] = {2,0,2,0,2,0,2,0,0,2,0,0,0,2,0,0,0,2
 static const uint8_t glyph_45_pattern[20] = {2,2,2,0,2,0,0,0,2,2,2,0,2,0,0,0,2,0,0,0};
 static const uint8_t glyph_46_pattern[20] = {0,0,2,0,0,0,2,0,0,0,2,0,2,0,2,0,0,2,0,0};
 static const uint8_t glyph_47_pattern[20] = {2,0,0,2,2,0,0,2,2,0,0,2,0,2,2,0,0,0,2,0};
-static const uint8_t glyph_48_pattern[15] = {0,0,0,0,0,0,0,0,0,0,0,0,0,2,0};
+// Narrower than the other new glyphs (width 2, not 3+) - it's almost
+// entirely blank space by nature (a single dot), so the standard width
+// left an oversized gap around it in odds text like "44.5". NFL-only
+// character (NBA never uses a period), safe to size independently.
+static const uint8_t glyph_48_pattern[10] = {0,0,0,0,0,0,0,0,2,0};
 
 const GlyphEntry GLYPH_TABLE[] = {
     {'0', 4, 5, glyph_0_pattern},
@@ -101,6 +105,6 @@ const GlyphEntry GLYPH_TABLE[] = {
     {'F', 4, 5, glyph_45_pattern},
     {'J', 4, 5, glyph_46_pattern},
     {'V', 4, 5, glyph_47_pattern},
-    {'.', 3, 5, glyph_48_pattern},
+    {'.', 2, 5, glyph_48_pattern},
 };
 const size_t GLYPH_TABLE_SIZE = 49;
