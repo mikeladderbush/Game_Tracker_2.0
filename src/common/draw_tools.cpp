@@ -46,7 +46,14 @@ void drawCharColored(char ch, int x, int y, uint8_t size, uint16_t color) {
 
 static int glyphAdvance(char ch, uint8_t size) {
     const GlyphEntry* g = findGlyph(ch);
-    return (g ? g->width + 1 : 4) * size;  // +1px spacing between glyphs
+    int width = g ? g->width : 4;
+    // Gap is half of what it was (was a flat 1px pre-scale, same at every
+    // size). nba_menu.cpp's hand-placed city-menu letters (the reference
+    // point here) use gaps as tight as 0px between some pairs at size 1 -
+    // max(1, size/2) keeps this in that spirit (tight, shrinks toward 0 as
+    // size drops) while never fully closing the gap to unreadable at
+    // small sizes.
+    return width * size + (size > 1 ? size / 2 : 1);
 }
 
 int drawText(const char* text, int x, int y, uint8_t size, uint16_t color) {
