@@ -22,13 +22,6 @@ private:
     unsigned long lastFetchMs_ = 0;
     unsigned long lastPageMs_ = 0;
 
-    // TODO: week/seasonType are placeholders (week 1, regular season) -
-    // there's no real "what NFL week is it today" calculation yet. Fine for
-    // now since TEST_SERVER's /fake_nfl_week ignores these params anyway;
-    // needs real logic before this points at the live ESPN endpoint.
-    static const int PLACEHOLDER_WEEK = 1;
-    static const int PLACEHOLDER_SEASON_TYPE = 2;
-
     static const unsigned long FETCH_INTERVAL_MS = 3600000UL;  // schedule/odds don't need to refresh often
     static const unsigned long PAGE_INTERVAL_MS = 5000UL;
 };

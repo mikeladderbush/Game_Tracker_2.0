@@ -26,9 +26,18 @@ struct NflWeekSchedule {
 };
 
 // GET site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard
-//     ?week={week}&seasontype={seasonType}&dates={year}
+//     [?week={week}&seasontype={seasonType}&dates={year}]
 // seasonType: 1=preseason, 2=regular, 3=postseason.
-JsonDocument fetchNflWeekScheduleJson(int week, int seasonType, int year);
+//
+// week <= 0 (the default) omits the query params entirely and lets ESPN
+// resolve "current week" server-side - confirmed live: a bare request
+// returns whatever week is actually happening right now (preseason,
+// regular season, or postseason, correctly). Deliberately not replicated
+// locally - the NFL's week boundaries shift by a few days every season, so
+// a hardcoded date table would need yearly upkeep and ESPN already solves
+// this correctly. Pass an explicit week for a future "browse other weeks"
+// feature; nothing needs that yet.
+JsonDocument fetchNflWeekScheduleJson(int week = 0, int seasonType = 0, int year = 0);
 
 // Parses schedule + embedded odds together. A game with no odds posted yet
 // (or no market for that game) just gets hasOdds=false - not treated as an

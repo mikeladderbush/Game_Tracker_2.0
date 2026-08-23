@@ -20,8 +20,10 @@ JsonDocument fetchNflWeekScheduleJson(int week, int seasonType, int year) {
     (void)week; (void)seasonType; (void)year;  // fixture ignores these, always returns the same week
     fetchJsonPlain(NFL_TEST_SERVER_URL, doc);
 #else
-    String url = String(NFL_SCOREBOARD_BASE) + "?week=" + week +
-                 "&seasontype=" + seasonType + "&dates=" + year;
+    String url = NFL_SCOREBOARD_BASE;
+    if (week > 0) {
+        url += String("?week=") + week + "&seasontype=" + seasonType + "&dates=" + year;
+    }
     fetchJsonPlain(url.c_str(), doc);
 #endif
     return doc;

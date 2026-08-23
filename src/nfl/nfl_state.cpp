@@ -1,10 +1,10 @@
 #include "nfl_state.h"
-#include "../common/ntp_time.h"
 #include <Arduino.h>
 
 void NflScheduleState::refetch() {
-    int year = getCurrentDate().substring(0, 4).toInt();
-    JsonDocument doc = fetchNflWeekScheduleJson(PLACEHOLDER_WEEK, PLACEHOLDER_SEASON_TYPE, year);
+    // No week/seasonType/year passed - fetchNflWeekScheduleJson() resolves
+    // to the actual current week server-side.
+    JsonDocument doc = fetchNflWeekScheduleJson();
     schedule_ = parseNflSchedule(doc);
     if (pageIndex_ >= schedule_.count) pageIndex_ = 0;
 }
