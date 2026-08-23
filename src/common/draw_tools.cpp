@@ -58,6 +58,16 @@ int drawText(const char* text, int x, int y, uint8_t size, uint16_t color) {
     return cursorX - x;
 }
 
+int drawTextAlternating(const char* text, int x, int y, uint8_t size, uint16_t colorA, uint16_t colorB) {
+    int cursorX = x;
+    int i = 0;
+    for (const char* p = text; *p; p++, i++) {
+        drawCharColored(*p, cursorX, y, size, (i % 2 == 0) ? colorA : colorB);
+        cursorX += glyphAdvance(*p, size);
+    }
+    return cursorX - x;
+}
+
 int textWidth(const char* text, uint8_t size) {
     int width = 0;
     for (const char* p = text; *p; p++) {

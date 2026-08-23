@@ -23,5 +23,5 @@ private:
     unsigned long lastPageMs_ = 0;
 
     static const unsigned long FETCH_INTERVAL_MS = 3600000UL;  // schedule/odds don't need to refresh often
-    static const unsigned long PAGE_INTERVAL_MS = 5000UL;
+    static const unsigned long PAGE_INTERVAL_MS = 7000UL;
 };

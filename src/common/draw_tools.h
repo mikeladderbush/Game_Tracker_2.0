@@ -18,8 +18,13 @@ void drawChar(char ch, int x, int y, uint8_t size);
 void drawCharColored(char ch, int x, int y, uint8_t size, uint16_t color);
 int drawText(const char* text, int x, int y, uint8_t size, uint16_t color);
 
+// Same as drawText, but alternates colorA/colorB per character (index 0 =
+// colorA, 1 = colorB, 2 = colorA, ...) - e.g. a two-tone team abbreviation.
+int drawTextAlternating(const char* text, int x, int y, uint8_t size, uint16_t colorA, uint16_t colorB);
+
 // Same per-glyph advance math drawText uses, without drawing - for centering
-// text before you know its pixel width.
+// text before you know its pixel width. Color-independent, so it works for
+// drawTextAlternating's output too.
 int textWidth(const char* text, uint8_t size);
 void drawLogo(const TeamSprite& team, int x, int y, int homeOrAway);
 void drawScore(int homeScore, int awayScore);
