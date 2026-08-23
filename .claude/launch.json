@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio-site",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8123", "--directory", "C:\\Users\\michael\\Documents\\portfolio-site"],
+      "port": 8123
+    }
+  ]
+}
