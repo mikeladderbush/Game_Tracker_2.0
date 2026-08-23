@@ -17,6 +17,10 @@ void drawChar(char ch, int x, int y, uint8_t size);
 // and returns the total pixel width drawn, useful for layout/centering.
 void drawCharColored(char ch, int x, int y, uint8_t size, uint16_t color);
 int drawText(const char* text, int x, int y, uint8_t size, uint16_t color);
+
+// Same per-glyph advance math drawText uses, without drawing - for centering
+// text before you know its pixel width.
+int textWidth(const char* text, uint8_t size);
 void drawLogo(const TeamSprite& team, int x, int y, int homeOrAway);
 void drawScore(int homeScore, int awayScore);
 void drawGameClock(const char* mmss);

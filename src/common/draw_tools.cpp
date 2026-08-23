@@ -44,15 +44,26 @@ void drawCharColored(char ch, int x, int y, uint8_t size, uint16_t color) {
     drawSprite(x, y, g->width, g->height, size, g->pattern, palette, 0, false);
 }
 
+static int glyphAdvance(char ch, uint8_t size) {
+    const GlyphEntry* g = findGlyph(ch);
+    return (g ? g->width + 1 : 4) * size;  // +1px spacing between glyphs
+}
+
 int drawText(const char* text, int x, int y, uint8_t size, uint16_t color) {
     int cursorX = x;
     for (const char* p = text; *p; p++) {
-        const GlyphEntry* g = findGlyph(*p);
-        int advance = (g ? g->width + 1 : 4) * size;  // +1px spacing between glyphs
         drawCharColored(*p, cursorX, y, size, color);
-        cursorX += advance;
+        cursorX += glyphAdvance(*p, size);
     }
     return cursorX - x;
+}
+
+int textWidth(const char* text, uint8_t size) {
+    int width = 0;
+    for (const char* p = text; *p; p++) {
+        width += glyphAdvance(*p, size);
+    }
+    return width;
 }
 
 void drawLogo(const TeamSprite& team, int x, int y, int homeOrAway){
