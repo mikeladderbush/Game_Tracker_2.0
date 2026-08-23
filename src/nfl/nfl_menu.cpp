@@ -14,10 +14,28 @@ static const uint8_t ABBR_SIZE = 2;
 static const uint8_t VS_SIZE = 1;
 static const uint8_t ODDS_SIZE = 2;
 
+// Every Y below leaves exactly one blank row between blocks (e.g. away
+// ends at row 16, VS starts at 18 - row 17 is the 1px gap), computed from
+// each block's actual rendered height (size * 5, glyph height) rather than
+// guessed. Centered vertically as a whole: 49px of content in the 64px
+// panel leaves 15px to split, 7 above/8 below.
+static const int AWAY_Y = 7;
+static const int VS_Y = 18;
+static const int HOME_Y = 24;
+static const int SPREAD_Y = 35;
+static const int OU_Y = 46;
+static const int NO_ODDS_Y = 40;
+
 static void drawCentered(const char* text, int y, uint8_t size, uint16_t color) {
     int x = (PANEL_WIDTH - textWidth(text, size)) / 2;
     if (x < 0) x = 0;
     drawText(text, x, y, size, color);
+}
+
+static void drawCenteredAlternating(const char* text, int y, uint8_t size, uint16_t colorA, uint16_t colorB) {
+    int x = (PANEL_WIDTH - textWidth(text, size)) / 2;
+    if (x < 0) x = 0;
+    drawTextAlternating(text, x, y, size, colorA, colorB);
 }
 
 void drawScheduleList(const NflWeekSchedule& schedule, int pageIndex) {
@@ -34,26 +52,20 @@ void drawScheduleList(const NflWeekSchedule& schedule, int pageIndex) {
     // Vertical stack: away, "VS.", home, then odds below. Each letter
     // alternates between the team's two colors (e.g. Patriots' "NE" - N
     // navy, E red) rather than the whole abbreviation being one solid
-    // color; centered horizontally via textWidth().
-    int awayX = (PANEL_WIDTH - textWidth(game.awayAbbr, ABBR_SIZE)) / 2;
-    if (awayX < 0) awayX = 0;
-    drawTextAlternating(game.awayAbbr, awayX, 1, ABBR_SIZE, away.primary, away.secondary);
-
-    drawCentered("VS.", 18, VS_SIZE, WHITE);
-
-    int homeX = (PANEL_WIDTH - textWidth(game.homeAbbr, ABBR_SIZE)) / 2;
-    if (homeX < 0) homeX = 0;
-    drawTextAlternating(game.homeAbbr, homeX, 25, ABBR_SIZE, home.primary, home.secondary);
+    // color; each line centered horizontally via textWidth().
+    drawCenteredAlternating(game.awayAbbr, AWAY_Y, ABBR_SIZE, away.primary, away.secondary);
+    drawCentered("VS.", VS_Y, VS_SIZE, WHITE);
+    drawCenteredAlternating(game.homeAbbr, HOME_Y, ABBR_SIZE, home.primary, home.secondary);
 
     if (game.hasOdds) {
         char spreadText[16];
         snprintf(spreadText, sizeof(spreadText), "%s -%.1f", game.favoriteAbbr, game.spread);
-        drawCentered(spreadText, 43, ODDS_SIZE, WHITE);
+        drawCentered(spreadText, SPREAD_Y, ODDS_SIZE, WHITE);
 
         char ouText[10];
         snprintf(ouText, sizeof(ouText), "OU%.1f", game.overUnder);
-        drawCentered(ouText, 54, ODDS_SIZE, WHITE);
+        drawCentered(ouText, OU_Y, ODDS_SIZE, WHITE);
     } else {
-        drawCentered("ODDS TBD", 46, VS_SIZE, WHITE);
+        drawCentered("ODDS TBD", NO_ODDS_Y, VS_SIZE, WHITE);
     }
 }

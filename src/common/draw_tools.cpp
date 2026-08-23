@@ -44,23 +44,16 @@ void drawCharColored(char ch, int x, int y, uint8_t size, uint16_t color) {
     drawSprite(x, y, g->width, g->height, size, g->pattern, palette, 0, false);
 }
 
-static int glyphAdvance(char ch, uint8_t size) {
-    const GlyphEntry* g = findGlyph(ch);
-    int width = g ? g->width : 4;
-    // Flat 1 physical pixel, not scaled by size - several glyphs (S, P, I,
-    // O, the period, ...) already have a fully blank trailing column baked
-    // into their own bitmap (declared width=4, ink only fills 3 columns),
-    // so a size-scaled gap on top of that compounded into uneven, oversized
-    // gaps that differed letter to letter depending on each glyph's own
-    // padding. A minimal constant gap reads much closer to "1px" uniformly.
-    return width * size + 1;
-}
+// measureGlyph/textWidth (ink-bounds-aware layout math) come from
+// glyph_metrics.h/.cpp - pure logic, no matrix dependency, so it's unit
+// tested natively rather than trusted by spot-check.
 
 int drawText(const char* text, int x, int y, uint8_t size, uint16_t color) {
     int cursorX = x;
     for (const char* p = text; *p; p++) {
-        drawCharColored(*p, cursorX, y, size, color);
-        cursorX += glyphAdvance(*p, size);
+        GlyphMetrics m = measureGlyph(*p, size);
+        drawCharColored(*p, cursorX + m.drawXOffset, y, size, color);
+        cursorX += m.advance;
     }
     return cursorX - x;
 }
@@ -69,18 +62,11 @@ int drawTextAlternating(const char* text, int x, int y, uint8_t size, uint16_t c
     int cursorX = x;
     int i = 0;
     for (const char* p = text; *p; p++, i++) {
-        drawCharColored(*p, cursorX, y, size, (i % 2 == 0) ? colorA : colorB);
-        cursorX += glyphAdvance(*p, size);
+        GlyphMetrics m = measureGlyph(*p, size);
+        drawCharColored(*p, cursorX + m.drawXOffset, y, size, (i % 2 == 0) ? colorA : colorB);
+        cursorX += m.advance;
     }
     return cursorX - x;
-}
-
-int textWidth(const char* text, uint8_t size) {
-    int width = 0;
-    for (const char* p = text; *p; p++) {
-        width += glyphAdvance(*p, size);
-    }
-    return width;
 }
 
 void drawLogo(const TeamSprite& team, int x, int y, int homeOrAway){

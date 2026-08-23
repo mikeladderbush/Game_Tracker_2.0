@@ -4,6 +4,7 @@
 #include <Adafruit_Protomatter.h>
 #include "team_sprite.h"
 #include "glyph_data.h"
+#include "glyph_metrics.h"
 
 extern Adafruit_Protomatter matrix;
 
@@ -22,10 +23,10 @@ int drawText(const char* text, int x, int y, uint8_t size, uint16_t color);
 // colorA, 1 = colorB, 2 = colorA, ...) - e.g. a two-tone team abbreviation.
 int drawTextAlternating(const char* text, int x, int y, uint8_t size, uint16_t colorA, uint16_t colorB);
 
-// Same per-glyph advance math drawText uses, without drawing - for centering
-// text before you know its pixel width. Color-independent, so it works for
-// drawTextAlternating's output too.
-int textWidth(const char* text, uint8_t size);
+// textWidth (for centering text before you know its pixel width) comes from
+// glyph_metrics.h, included above - same ink-bounds-aware measurement
+// drawText/drawTextAlternating use to actually draw, so a caller's centering
+// math always matches what gets rendered.
 void drawLogo(const TeamSprite& team, int x, int y, int homeOrAway);
 void drawScore(int homeScore, int awayScore);
 void drawGameClock(const char* mmss);
