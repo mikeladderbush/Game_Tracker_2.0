@@ -21,6 +21,13 @@ static void drawTeamChip(int x, const char* abbr) {
 }
 
 void drawScheduleList(const NflWeekSchedule& schedule, int pageIndex) {
+    if (schedule.count == 0) {
+        // No silent blank screen - a failed/empty fetch (test server down,
+        // wrong IP, network issue) should be visibly distinguishable from
+        // "working, just between draws."
+        drawText("NO NFL DATA", 2, 14, 1, WHITE);
+        return;
+    }
     if (pageIndex < 0 || pageIndex >= schedule.count) return;
     const NflMatchup& game = schedule.games[pageIndex];
 

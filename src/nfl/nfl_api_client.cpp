@@ -24,7 +24,7 @@ JsonDocument fetchNflWeekScheduleJson(int week, int seasonType, int year) {
     if (week > 0) {
         url += String("?week=") + week + "&seasontype=" + seasonType + "&dates=" + year;
     }
-    fetchJsonPlain(url.c_str(), doc);
+    fetchJsonSecure(url.c_str(), nullptr, doc);
 #endif
     return doc;
 }
