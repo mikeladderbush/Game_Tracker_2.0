@@ -8,8 +8,8 @@ void tearDown() {}
 
 void test_known_abbr_returns_real_colors() {
     NflTeamColor c = nflColorForAbbr("SEA");
-    TEST_ASSERT_EQUAL_HEX16(0x6de5, c.primary);    // Action Green
-    TEST_ASSERT_EQUAL_HEX16(0x0108, c.secondary);  // College Navy
+    TEST_ASSERT_EQUAL_HEX16(0x0108, c.primary);    // College Navy
+    TEST_ASSERT_EQUAL_HEX16(0x6de5, c.secondary);  // Action Green
 }
 
 void test_unknown_abbr_falls_back_to_white_not_null() {

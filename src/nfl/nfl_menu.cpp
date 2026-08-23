@@ -5,10 +5,17 @@
 #include <cstring>
 
 static const int PANEL_WIDTH = 64;
-static const int MARGIN = 4;
+static const int MARGIN = 2;
 static const uint16_t WHITE = 0xffff;
-static const uint8_t ABBR_SIZE = 1;
-static const uint8_t ODDS_SIZE = 2;
+
+// The renderer only supports integer pixel scaling (each logical pixel
+// becomes an NxN block - see drawSprite), so "1.5x" isn't literally
+// achievable. ODDS_SIZE=1 is the nearest step below ABBR_SIZE=2, preserving
+// the requested size hierarchy without a fractional-scaling renderer this
+// project doesn't have (and which would look inconsistent on a font this
+// small anyway).
+static const uint8_t ABBR_SIZE = 2;
+static const uint8_t ODDS_SIZE = 1;
 
 static void drawCentered(const char* text, int y, uint8_t size, uint16_t color) {
     int x = (PANEL_WIDTH - textWidth(text, size)) / 2;
@@ -18,7 +25,7 @@ static void drawCentered(const char* text, int y, uint8_t size, uint16_t color) 
 
 void drawScheduleList(const NflWeekSchedule& schedule, int pageIndex) {
     if (schedule.count == 0) {
-        drawText("NO NFL DATA", MARGIN, 14, ABBR_SIZE, WHITE);
+        drawText("NO NFL DATA", MARGIN, 14, ODDS_SIZE, WHITE);
         return;
     }
     if (pageIndex < 0 || pageIndex >= schedule.count) return;
@@ -28,31 +35,24 @@ void drawScheduleList(const NflWeekSchedule& schedule, int pageIndex) {
     NflTeamColor home = nflColorForAbbr(game.homeAbbr);
 
     // Horizontal top row, margined: away left, home right-aligned so it
-    // never runs off the edge regardless of abbreviation length. Each
-    // letter alternates between the team's two colors (e.g. Patriots'
-    // "NE" - N red, E blue) rather than the whole abbreviation being one
-    // solid color.
-    drawTextAlternating(game.awayAbbr, MARGIN, 4, ABBR_SIZE, away.primary, away.secondary);
+    // never runs off the edge regardless of abbreviation length. No "VS."
+    // here - two abbreviations at 2x size plus a separator doesn't fit
+    // (two 3-letter abbreviations alone can reach 60-64px), so left/right
+    // position is what conveys away vs. home. Each letter alternates
+    // between the team's two colors (e.g. Patriots' "NE" - N red, E blue).
+    drawTextAlternating(game.awayAbbr, MARGIN, 2, ABBR_SIZE, away.primary, away.secondary);
     int homeX = PANEL_WIDTH - MARGIN - textWidth(game.homeAbbr, ABBR_SIZE);
-    drawTextAlternating(game.homeAbbr, homeX, 4, ABBR_SIZE, home.primary, home.secondary);
-    drawCentered("VS.", 4, ABBR_SIZE, WHITE);
+    drawTextAlternating(game.homeAbbr, homeX, 2, ABBR_SIZE, home.primary, home.secondary);
 
     if (game.hasOdds) {
-        // Spread sits under whichever side is favored (same left/right
-        // convention as the abbreviation row above) instead of repeating
-        // the team abbreviation - leaves room for the number to be big.
-        char spreadText[8];
-        snprintf(spreadText, sizeof(spreadText), "-%.1f", game.spread);
-        bool homeFavored = strcmp(game.favoriteAbbr, game.homeAbbr) == 0;
-        int spreadX = homeFavored
-            ? PANEL_WIDTH - MARGIN - textWidth(spreadText, ODDS_SIZE)
-            : MARGIN;
-        drawText(spreadText, spreadX, 18, ODDS_SIZE, WHITE);
+        char spreadText[16];
+        snprintf(spreadText, sizeof(spreadText), "%s -%.1f", game.favoriteAbbr, game.spread);
+        drawCentered(spreadText, 16, ODDS_SIZE, WHITE);
 
         char ouText[10];
         snprintf(ouText, sizeof(ouText), "OU%.1f", game.overUnder);
-        drawCentered(ouText, 30, ODDS_SIZE, WHITE);
+        drawCentered(ouText, 23, ODDS_SIZE, WHITE);
     } else {
-        drawCentered("ODDS TBD", 20, ABBR_SIZE, WHITE);
+        drawCentered("ODDS TBD", 16, ODDS_SIZE, WHITE);
     }
 }

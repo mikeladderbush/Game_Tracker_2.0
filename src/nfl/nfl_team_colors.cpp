@@ -10,12 +10,12 @@ const NflTeamColor NFL_TEAM_COLORS[] = {
     {"CAR", 0x0439, 0xa575},  // Panther Blue / Silver
     {"CHI", 0x08a5, 0xc9c0},  // Navy / Orange
     {"CIN", 0xfa62, 0xffff},  // Orange / White
-    {"CLE", 0xf9e0, 0x30e0},  // Orange / Brown
+    {"CLE", 0x30e0, 0xf9e0},  // Brown / Orange - Brown is quite dark, check on hardware
     {"DAL", 0x00e8, 0xb5b7},  // Navy / Metallic Silver
     {"DEN", 0xfa62, 0x0108},  // Broncos Orange / Navy
     {"DET", 0x03b6, 0xb5b7},  // Honolulu Blue / Silver
     {"GB",  0x21a6, 0xfda2},  // Green / Gold
-    {"HOU", 0xa0c6, 0x0105},  // Battle Red / Deep Steel Blue
+    {"HOU", 0x0105, 0xa0c6},  // Deep Steel Blue / Battle Red - fairly dark, check on hardware
     {"IND", 0x016b, 0xffff},  // Colts Blue / White
     {"JAX", 0x032f, 0xd505},  // Teal / Gold
     {"KC",  0xe0c6, 0xfda2},  // Red / Gold
@@ -24,14 +24,14 @@ const NflTeamColor NFL_TEAM_COLORS[] = {
     {"LAR", 0x01b2, 0xfe80},  // Royal Blue / Gold
     {"MIA", 0x0472, 0xfa60},  // Aqua / Orange
     {"MIN", 0x4930, 0xfe25},  // Purple / Gold
-    {"NE",  0xc066, 0x0108},  // Red / Nautical Navy
+    {"NE",  0x0108, 0xc066},  // Navy Blue / Red
     {"NO",  0xd5f1, 0xffff},  // Old Gold / White
     {"NYG", 0x090c, 0xa0c6},  // Blue / Red
     {"NYJ", 0x12a8, 0xffff},  // Gotham Green / White
     {"PHI", 0x026a, 0xa575},  // Midnight Green / Silver
     {"PIT", 0xfda2, 0xffff},  // Gold / White
     {"SF",  0xa800, 0xb4cb},  // Red / Gold
-    {"SEA", 0x6de5, 0x0108},  // Action Green / College Navy
+    {"SEA", 0x0108, 0x6de5},  // College Navy / Action Green
     {"TB",  0xd041, 0x3185},  // Buccaneer Red / Pewter
     {"TEN", 0x4c9b, 0xc885},  // Titans Blue / Red
     {"WSH", 0x58a2, 0xfda2},  // Burgundy / Gold
