@@ -20,9 +20,11 @@ static const char* INDEX_HTML = R"HTML(
 <button onclick="fetch('/on')">Power On</button>
 <button onclick="fetch('/off')">Power Off</button>
 <br><br>
-<select id="sportBox">
+<select id="sportBox" onchange="onSportChange()">
   <option value="NBA">NBA</option>
+  <option value="NFL">NFL</option>
 </select>
+<div id="teamRow">
 <select id="teamBox">
   <option value="ATL">Atlanta Hawks</option>
   <option value="BOS">Boston Celtics</option>
@@ -56,7 +58,17 @@ static const char* INDEX_HTML = R"HTML(
   <option value="WAS">Washington Wizards</option>
 </select>
 <button onclick="setTeam()">Set Team</button>
+</div>
 <script>
+function onSportChange(){
+    let sport = document.getElementById("sportBox").value;
+    document.getElementById("teamRow").style.display = (sport === "NBA") ? "block" : "none";
+    if (sport === "NFL") {
+        fetch("/sport?value=NFL")
+            .then(r => r.text())
+            .then(msg => alert(msg));
+    }
+}
 function setTeam(){
     let t = document.getElementById("teamBox").value;
     fetch("/team?name=" + t)
@@ -101,7 +113,26 @@ void beginControlServer() {
         strncpy(appInput.team, buf, sizeof(appInput.team) - 1);
         appInput.team[sizeof(appInput.team) - 1] = '\0';
         appInput.teamPending = true;
+        // Picking an NBA team implies NBA mode - no separate /sport call needed.
+        strncpy(appInput.sport, "NBA", sizeof(appInput.sport) - 1);
+        appInput.sport[sizeof(appInput.sport) - 1] = '\0';
+        appInput.sportPending = true;
         server.send(200, "text/plain", "Team set to " + name);
+    });
+
+    server.on("/sport", HTTP_GET, []() {
+        String value = server.arg("value");
+        value.toUpperCase();
+
+        if (value != "NBA" && value != "NFL") {
+            server.send(400, "text/plain", "Invalid sport - must be NBA or NFL");
+            return;
+        }
+
+        strncpy(appInput.sport, value.c_str(), sizeof(appInput.sport) - 1);
+        appInput.sport[sizeof(appInput.sport) - 1] = '\0';
+        appInput.sportPending = true;
+        server.send(200, "text/plain", "Sport set to " + value);
     });
 
     server.begin();
