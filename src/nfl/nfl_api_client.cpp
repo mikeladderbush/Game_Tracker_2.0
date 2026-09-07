@@ -2,7 +2,7 @@
 #include "../common/http_fetch.h"
 
 #ifndef TEST_SERVER
-#define TEST_SERVER 1
+#define TEST_SERVER 0
 #endif
 
 #if TEST_SERVER

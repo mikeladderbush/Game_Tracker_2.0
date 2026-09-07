@@ -4,7 +4,7 @@ Scope: weekly scheduled matchups with betting odds (favorite, spread, over/under
 
 1. **[confirmed]** Odds come embedded directly in the scoreboard response (`competitions[0].odds[]`) - checked against a real regular-season week-1 response (`NE @ SEA`, 2026-09-10). No separate per-game odds call needed.
 2. **[resolved]** Given (1), the answer is: one fetch per week, always. `fetchNflOddsJson()`/`parseNflOdds()` (the separate-call path) were never built as real functions.
-3. **[done]** `fetchNflWeekScheduleJson()` in `src/nfl/nfl_api_client.cpp` - real, working call, `TEST_SERVER`-gated same pattern as `nba/nba_api_client.cpp`. Defaults to no query params at all, which ESPN resolves to the actual current week server-side (confirmed live: returned Preseason Week 2 with zero params, matching real-world "now") - avoids reimplementing the NFL's calendar locally, which would need yearly upkeep as week boundaries shift.
+3. **[done, live]** `fetchNflWeekScheduleJson()` in `src/nfl/nfl_api_client.cpp` - `TEST_SERVER` flipped to `0` as of 2026-09-07 (regular season week 1) - re-confirmed live moments before the flip: zero query params returned `season.type=2` (regular season), `week.number=1`, 16 real games, first one Patriots @ Seahawks 2026-09-10, `hasOdds: true`. Also checked balldontlie.io (already used for NBA in this project) as an alternative - its NFL free tier is schedule-only, betting odds require the $39.99/mo GOAT tier - so ESPN remains the better fit (free, no key, odds included).
 4. **[done]** `parseNflSchedule()` in `src/nfl/nfl_schedule_parser.cpp` - real parsing, unit tested (`test/test_nfl_schedule/`).
 5. ~~Separate odds call~~ - not needed, see (1)/(2).
 6. ~~`parseNflOdds()`~~ - folded into `parseNflSchedule()`.
@@ -17,6 +17,8 @@ Scope: weekly scheduled matchups with betting odds (favorite, spread, over/under
 13. **[done]** Runtime NBA/NFL switching: `AppInput.sport` + `/sport?value=NBA|NFL` control server endpoint, live-switchable (not just at boot) via `main.cpp`'s `stateTask`/`renderTask` branching on `appInput.sport` every iteration. Android app has NBA/NFL toggle buttons that call it.
 
 ## Not done / explicitly out of scope so far
+
+- **Live season monitoring.** ESPN's endpoint is unofficial/undocumented - nothing alerts if it changes shape or goes away mid-season. If the board ever shows "NO NFL DATA" during the season, check the serial monitor for `fetchJson` errors first.
 
 - **Kickoff time display.** `NflMatchup.kickoffIso` captures the raw ISO datetime but nothing formats/displays it - the requested screen only asked for matchup + odds.
 - **Bye weeks.** Not specially handled - a team simply won't appear in `events[]` that week, which `parseNflSchedule()` already tolerates fine (doesn't assume a fixed team list), but nothing calls it out.
