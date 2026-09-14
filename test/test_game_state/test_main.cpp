@@ -1,5 +1,5 @@
 #include <unity.h>
-#include "clock_sync.h"
+#include "common/clock_sync.h"
 
 void setUp() {}
 void tearDown() {}

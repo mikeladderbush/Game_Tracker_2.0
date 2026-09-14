@@ -3,8 +3,10 @@
 
 struct AppInput {
     bool powerOn = false;
-    char team[4] = {0};      
+    char team[4] = {0};
     bool teamPending = false;
+    char sport[4] = "NBA";
+    bool sportPending = false;
 };
 extern AppInput appInput;
 

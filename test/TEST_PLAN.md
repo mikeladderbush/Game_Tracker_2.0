@@ -99,7 +99,7 @@ manual/visual tests via TestServer.py.
 - `"Sixers"` → `"76ers"`
 - Every other team name → passthrough unchanged
 
-## 11. `teamFromString` / `teamFromAbbr` (nba_teams.cpp)
+## 11. `nbaTeamFromString` / `nbaTeamFromAbbr` (nba/nba_teams.cpp)
 
 - Full name lowercase match: `"celtics"` → Celtics
 - Mixed case: `"Boston Celtics"` → matches via last-word fallback (`"celtics"`)
@@ -107,13 +107,13 @@ manual/visual tests via TestServer.py.
 - Multi-word franchise, last-word match: `"Trail Blazers"` → confirm `"blazers"` resolves to `trailBlazers`, not a false match
 - No match at all (`"Globetrotters"`) → `nullptr`, not a crash
 - Empty string → `nullptr`
-- **[EDGE]** `teamFromAbbr` is case-sensitive (`strcmp`, not `strcasecmp`). `"bos"` (lowercase) → `nullptr` even though it's a real team. Confirm every caller uppercases first (control_server.cpp does) — but this is a landmine if a second entry point to team selection is ever added (e.g., the app you're planning) and forgets to uppercase.
+- **[EDGE]** `nbaTeamFromAbbr` is case-sensitive (`strcmp`, not `strcasecmp`). `"bos"` (lowercase) → `nullptr` even though it's a real team. Confirm every caller uppercases first (control_server.cpp does) — but this is a landmine if a second entry point to team selection is ever added (e.g., the app you're planning) and forgets to uppercase.
 
 ## 12. Control server `/team`, `/on`, `/off` (control_server.cpp)
 
-- **[FIXED — changed approach]** Free-text input replaced with a sport dropdown (NBA only, for now) and a team dropdown populated with all 30 valid abbreviations, so the UI can no longer submit garbage. Server-side `teamFromAbbr` guard kept as defense-in-depth since the endpoint has no auth. Regression tests: valid dropdown value → 200, `teamPending = true`; direct request with bogus value (`?name=ZZZ`, bypassing the dropdown via curl) → 400, "Invalid selection - please try again.", `appInput` untouched.
+- **[FIXED — changed approach]** Free-text input replaced with a sport dropdown (NBA only, for now) and a team dropdown populated with all 30 valid abbreviations, so the UI can no longer submit garbage. Server-side `nbaTeamFromAbbr` guard kept as defense-in-depth since the endpoint has no auth. Regression tests: valid dropdown value → 200, `teamPending = true`; direct request with bogus value (`?name=ZZZ`, bypassing the dropdown via curl) → 400, "Invalid selection - please try again.", `appInput` untouched.
 - Abbreviation longer than 3 characters via direct request (`?name=BOSTON`) → truncated to 3 chars by the `char buf[4]` buffer before validation; confirm truncation doesn't accidentally produce a *different valid* abbreviation
-- Empty `?name=` via direct request → fails the `teamFromAbbr` guard cleanly, 400 response, no crash
+- Empty `?name=` via direct request → fails the `nbaTeamFromAbbr` guard cleanly, 400 response, no crash
 - `/on` then `/off` then `/on` in rapid succession → `appInput.powerOn` reflects the last call, no dropped requests
 - Concurrent requests (app + browser hitting `/team` and `/on` near-simultaneously) — `WebServer` is single-threaded via `handleClient()` in the state task loop, so verify there's no torn read of `appInput` from the render task reading `powerOn`/team state mid-write (currently no mutex around `AppInput` — flag if this becomes a real race once more fields are added)
 
@@ -175,7 +175,7 @@ in `nba_teams.cpp`).
 | File | Covers | Sections |
 |---|---|---|
 | `test/test_clock_parsing/test_main.cpp` | `clockStrToSecs`, `secsToMMSS`, `convertUtcToEstWithOffset`, `teamNameToId` | 1, 2, 3, 4 |
-| `test/test_team_lookup/test_main.cpp` | `teamFromString`, `teamFromAbbr` | 11 |
+| `test/test_team_lookup/test_main.cpp` | `nbaTeamFromString`, `nbaTeamFromAbbr` | 11 |
 | `test/test_game_state/test_main.cpp` | `nextDisplaySeconds` — the 3 clock catch-up regression cases (normal decrement, period jump, OT jump) | 8 |
 | `test/test_draw_formatting/test_main.cpp` | Score digit math, clock/date/time string parsing, quarter/OT label logic | 13 |
 | `test/test_glyph_coverage/test_main.cpp` | Every character used across `drawChar` call sites resolves in `GLYPH_TABLE` | 13 |

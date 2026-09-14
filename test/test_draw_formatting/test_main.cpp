@@ -1,6 +1,6 @@
 #include <unity.h>
 #include <cstring>
-#include "draw_formatting.h"
+#include "common/draw_formatting.h"
 
 void setUp() {}
 void tearDown() {}

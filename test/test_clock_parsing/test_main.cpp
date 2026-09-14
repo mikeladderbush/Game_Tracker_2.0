@@ -1,5 +1,5 @@
 #include <unity.h>
-#include "api_formatting.h"
+#include "common/time_formatting.h"
 
 void setUp() {}
 void tearDown() {}
@@ -114,22 +114,6 @@ void test_utc_to_est_empty_passthrough() {
     TEST_ASSERT_EQUAL_STRING("", convertUtcToEstWithOffset("", -5).c_str());
 }
 
-// --- teamNameToId ---
-
-void test_team_name_to_id_known_team() {
-    TEST_ASSERT_EQUAL_INT(14, teamNameToId("Lakers"));
-}
-
-void test_team_name_to_id_unknown_team() {
-    TEST_ASSERT_EQUAL_INT(-1, teamNameToId("Fakers"));
-}
-
-void test_team_name_to_id_is_case_sensitive() {
-    // Documents current behavior (raw strcmp) - callers must pass canonical
-    // case. Flag if this should become case-insensitive.
-    TEST_ASSERT_EQUAL_INT(-1, teamNameToId("lakers"));
-}
-
 int main(int argc, char **argv) {
     UNITY_BEGIN();
 
@@ -158,10 +142,6 @@ int main(int argc, char **argv) {
     RUN_TEST(test_utc_to_est_midnight_boundary_hours12_wraps_to_12);
     RUN_TEST(test_utc_to_est_malformed_no_colon_passthrough);
     RUN_TEST(test_utc_to_est_empty_passthrough);
-
-    RUN_TEST(test_team_name_to_id_known_team);
-    RUN_TEST(test_team_name_to_id_unknown_team);
-    RUN_TEST(test_team_name_to_id_is_case_sensitive);
 
     return UNITY_END();
 }

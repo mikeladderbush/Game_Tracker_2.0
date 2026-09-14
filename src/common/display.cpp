@@ -2,7 +2,12 @@
 #include <cstdint>
 #include "display.h"
 
-static uint8_t rgbPins[]  = {42, 41, 40, 38, 39, 37};
+// Order is [R1, G1, B1, R2, G2, B2] per Adafruit_Protomatter. R and B were
+// swapped here (confirmed: a near-pure red team color rendered as blue) -
+// this corrects it in software by relabeling which physical pin is which
+// channel, rather than re-wiring the panel. Affects every color on both
+// NBA and NFL screens, not just one sport - they share this same matrix.
+static uint8_t rgbPins[]  = {40, 41, 42, 37, 39, 38};
 static uint8_t addrPins[] = {45, 36, 48, 35, 21};
 static uint8_t clockPin = 2;
 static uint8_t latchPin = 47;

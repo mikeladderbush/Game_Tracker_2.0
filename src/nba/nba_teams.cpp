@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <string.h>
 
-struct NameEntry { const char* key; const NbaTeam* team; };
+struct NameEntry { const char* key; const TeamSprite* team; };
 
 static const NameEntry NAME_TABLE[] = {
     {"hawks", &hawks}, {"celtics", &celtics}, {"nets", &nets}, {"hornets", &hornets},
@@ -17,7 +17,7 @@ static const NameEntry NAME_TABLE[] = {
     {"jazz", &jazz}, {"wizards", &wizards},
 };
 
-const NbaTeam* teamFromString(const char* name) {
+const TeamSprite* nbaTeamFromString(const char* name) {
     String lower = String(name);
     lower.toLowerCase();
 
@@ -38,7 +38,7 @@ const NbaTeam* teamFromString(const char* name) {
     return nullptr;
 }
 
-struct AbbrEntry { const char* abbr; const NbaTeam* team; };
+struct AbbrEntry { const char* abbr; const TeamSprite* team; };
 
 static const AbbrEntry ABBR_TABLE[] = {
     {"ATL", &hawks}, {"BKN", &nets}, {"BOS", &celtics}, {"CHA", &hornets},
@@ -51,7 +51,7 @@ static const AbbrEntry ABBR_TABLE[] = {
     {"UTA", &jazz}, {"WAS", &wizards},
 };
 
-const NbaTeam* teamFromAbbr(const char* abbr) {
+const TeamSprite* nbaTeamFromAbbr(const char* abbr) {
     for (auto& entry : ABBR_TABLE) {
         if (strcmp(entry.abbr, abbr) == 0) return entry.team;
     }
