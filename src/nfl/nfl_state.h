@@ -23,5 +23,6 @@ private:
     unsigned long lastPageMs_ = 0;
 
     static const unsigned long FETCH_INTERVAL_MS = 3600000UL;  // schedule/odds don't need to refresh often
+    static const unsigned long RETRY_INTERVAL_MS = 60000UL;    // while nothing's loaded yet
     static const unsigned long PAGE_INTERVAL_MS = 7000UL;
 };

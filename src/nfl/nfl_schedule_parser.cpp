@@ -14,6 +14,28 @@ static void copyBounded(char* dst, size_t dstSize, const char* src) {
 // Pure JSON -> struct logic, split from nfl_api_client.cpp (which needs
 // ESP32-only networking) so this half can be compiled and unit tested
 // natively - same reasoning as nba/nba_team_ids.cpp.
+
+// Every field parseNflSchedule() reads below must be named here, or it never
+// survives the filtered fetch. (An array filter's [0] applies to every element.)
+void buildNflScheduleFilter(JsonDocument& filter) {
+    filter["week"]["number"] = true;
+
+    JsonObject event = filter["events"][0].to<JsonObject>();
+    event["id"] = true;
+    event["date"] = true;
+    event["status"]["type"]["state"] = true;
+
+    JsonObject comp = event["competitions"][0].to<JsonObject>();
+    JsonObject competitor = comp["competitors"][0].to<JsonObject>();
+    competitor["homeAway"] = true;
+    competitor["team"]["abbreviation"] = true;
+
+    JsonObject odds = comp["odds"][0].to<JsonObject>();
+    odds["spread"] = true;
+    odds["overUnder"] = true;
+    odds["homeTeamOdds"]["favorite"] = true;
+}
+
 NflWeekSchedule parseNflSchedule(const JsonDocument& doc) {
     NflWeekSchedule result;
     result.weekNumber = doc["week"]["number"] | 0;
@@ -29,6 +51,9 @@ NflWeekSchedule parseNflSchedule(const JsonDocument& doc) {
 
         const char* kickoff = event["date"] | "";
         copyBounded(m.kickoffIso, sizeof(m.kickoffIso), kickoff);
+
+        const char* state = event["status"]["type"]["state"] | "";
+        m.isFinal = strcmp(state, "post") == 0;
 
         JsonObjectConst comp = event["competitions"][0];
 

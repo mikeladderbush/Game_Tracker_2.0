@@ -12,6 +12,7 @@ struct NflMatchup {
     char awayAbbr[4] = {0};
     char kickoffIso[24] = {0};   // raw ISO datetime from the API, e.g. "2026-09-10T00:20Z"
 
+    bool isFinal = false;        // game already played - ESPN drops its odds afterwards
     bool hasOdds = false;
     char favoriteAbbr[4] = {0};
     float spread = 0.0f;         // magnitude only (always shown as "-X.X" next to the favorite)
@@ -38,6 +39,12 @@ struct NflWeekSchedule {
 // this correctly. Pass an explicit week for a future "browse other weeks"
 // feature; nothing needs that yet.
 JsonDocument fetchNflWeekScheduleJson(int week = 0, int seasonType = 0, int year = 0);
+
+// The full scoreboard response is ~280 KB (confirmed live, 2026-09-26) - far
+// more than the ESP32 can hold as a parsed tree. This fills in an ArduinoJson
+// filter naming only the fields parseNflSchedule() reads, so the fetch keeps
+// a few KB instead. Kept next to the parser so the two can't drift apart.
+void buildNflScheduleFilter(JsonDocument& filter);
 
 // Parses schedule + embedded odds together. A game with no odds posted yet
 // (or no market for that game) just gets hasOdds=false - not treated as an

@@ -16,16 +16,16 @@ static bool hasGlyph(char ch) {
 // Every character actually passed to drawChar(...)/drawCharColored(...)
 // anywhere in the codebase, as of this pass:
 //   - digits '0'-'9'                          (scores, clock, date, OT number)
-//   - ' ' ':' '-' '_' '.'                     (blank digit, clock, date, selector, odds decimals)
+//   - ' ' ':' '-' '_' '.' '+' '/'             (blank digit, clock, date, selector, odds decimals, "+/-")
 //   - 'p' 'a'                                  (AM/PM indicator)
 //   - "1st" "2nd" "3rd" "4th" "HT" "OT"/"OTn"   (quarterLabel output)
 //   - nba/nba_menu.cpp's city-menu team abbreviation letters
-//   - nfl/nfl_menu.cpp's team abbreviations, "VS.", "OU", "ODDS TBD", "OF"
+//   - nfl/nfl_menu.cpp's team abbreviations, "VS.", "+/-", "ODDS TBD", "FINAL"
 // If a character below is missing from GLYPH_TABLE, drawChar silently draws
 // nothing - invisible until you're staring at the actual board. This test
 // catches that at build time instead.
 static const char CHARS_USED[] =
-    "0123456789 :-_.pa"
+    "0123456789 :-_.pa+/"
     "stndrhOT"                              // quarter labels
     "ATLBKNOSCHIDEGWUMPRXYFJV";              // team abbreviations + VS./OU/ODDS TBD/OF (deduped by hand)
 

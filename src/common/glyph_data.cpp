@@ -55,6 +55,10 @@ static const uint8_t glyph_47_pattern[20] = {2,0,0,2,2,0,0,2,2,0,0,2,0,2,2,0,0,0
 // left an oversized gap around it in odds text like "44.5". NFL-only
 // character (NBA never uses a period), safe to size independently.
 static const uint8_t glyph_48_pattern[10] = {0,0,0,0,0,0,0,0,2,0};
+// For the NFL over/under label "+/-" (replaces "OU"). '+' crossbar shares
+// row 2 with '-' so the two line up.
+static const uint8_t glyph_49_pattern[15] = {0,0,0,0,2,0,2,2,2,0,2,0,0,0,0};
+static const uint8_t glyph_50_pattern[15] = {0,0,2,0,0,2,0,2,0,2,0,0,2,0,0};
 
 const GlyphEntry GLYPH_TABLE[] = {
     {'0', 4, 5, glyph_0_pattern},
@@ -106,5 +110,7 @@ const GlyphEntry GLYPH_TABLE[] = {
     {'J', 4, 5, glyph_46_pattern},
     {'V', 4, 5, glyph_47_pattern},
     {'.', 2, 5, glyph_48_pattern},
+    {'+', 3, 5, glyph_49_pattern},
+    {'/', 3, 5, glyph_50_pattern},
 };
-const size_t GLYPH_TABLE_SIZE = 49;
+const size_t GLYPH_TABLE_SIZE = 51;

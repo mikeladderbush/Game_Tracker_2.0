@@ -63,9 +63,9 @@ void drawScheduleList(const NflWeekSchedule& schedule, int pageIndex) {
         drawCentered(spreadText, SPREAD_Y, ODDS_SIZE, WHITE);
 
         char ouText[10];
-        snprintf(ouText, sizeof(ouText), "OU%.1f", game.overUnder);
+        snprintf(ouText, sizeof(ouText), "+/-%.1f", game.overUnder);
         drawCentered(ouText, OU_Y, ODDS_SIZE, WHITE);
     } else {
-        drawCentered("ODDS TBD", NO_ODDS_Y, VS_SIZE, WHITE);
+        drawCentered(game.isFinal ? "FINAL" : "ODDS TBD", NO_ODDS_Y, VS_SIZE, WHITE);
     }
 }

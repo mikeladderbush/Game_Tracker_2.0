@@ -167,13 +167,12 @@ def autoplay(mode):
         state["autoplay"] = (mode == "on")
     return jsonify({"autoplay": state["autoplay"]})
 
-def _nfl_matchup(event_id, date, away, home, spread=None, over_under=None, home_favorite=True):
+def _nfl_matchup(event_id, date, away, home, spread=None, over_under=None, home_favorite=True, state="pre"):
     competition = {
         "competitors": [
             {"homeAway": "home", "team": {"abbreviation": home}},
             {"homeAway": "away", "team": {"abbreviation": away}},
         ],
-        "status": {"type": {"state": "pre"}},
     }
     if spread is not None:
         competition["odds"] = [{
@@ -182,9 +181,16 @@ def _nfl_matchup(event_id, date, away, home, spread=None, over_under=None, home_
             "homeTeamOdds": {"favorite": home_favorite},
             "awayTeamOdds": {"favorite": not home_favorite},
         }]
-    return {"id": event_id, "date": date, "competitions": [competition]}
+    return {
+        "id": event_id,
+        "date": date,
+        "status": {"type": {"state": state}},
+        "competitions": [competition],
+    }
 
 NFL_WEEK_FIXTURE = [
+    # Already played - ESPN drops odds afterwards; exercises isFinal (shows FINAL).
+    _nfl_matchup("401872660", "2026-09-04T00:15Z", "ATL", "GB", state="post"),
     _nfl_matchup("401872656", "2026-09-10T00:20Z", "NE", "SEA", spread=3.5, over_under=44.5, home_favorite=True),
     _nfl_matchup("401872657", "2026-09-07T17:00Z", "NYJ", "PIT", spread=2.5, over_under=38.0, home_favorite=True),
     _nfl_matchup("401872658", "2026-09-07T17:00Z", "GB", "CHI", spread=6.0, over_under=41.5, home_favorite=False),

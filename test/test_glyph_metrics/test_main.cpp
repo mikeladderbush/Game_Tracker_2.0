@@ -61,7 +61,7 @@ void test_measure_glyph_unknown_char_uses_fallback() {
 // gap is exactly 1 physical pixel. This is what "take your time and make
 // sure every letter combination is right" actually means as a test, rather
 // than trusting a few hand-checked examples. GLYPH_TABLE_SIZE^2 * 3 cases
-// (~7200) is trivial to run natively. ---
+// (~7800) is trivial to run natively. ---
 
 void test_every_glyph_pair_has_exactly_one_pixel_gap_at_every_size() {
     for (uint8_t size = 1; size <= 3; size++) {

@@ -15,16 +15,19 @@ static const char* NFL_SCOREBOARD_BASE =
 #endif
 
 JsonDocument fetchNflWeekScheduleJson(int week, int seasonType, int year) {
+    JsonDocument filter;
+    buildNflScheduleFilter(filter);
+
     JsonDocument doc;
 #if TEST_SERVER
     (void)week; (void)seasonType; (void)year;  // fixture ignores these, always returns the same week
-    fetchJsonPlain(NFL_TEST_SERVER_URL, doc);
+    fetchJsonPlain(NFL_TEST_SERVER_URL, doc, &filter);
 #else
     String url = NFL_SCOREBOARD_BASE;
     if (week > 0) {
         url += String("?week=") + week + "&seasontype=" + seasonType + "&dates=" + year;
     }
-    fetchJsonSecure(url.c_str(), nullptr, doc);
+    fetchJsonSecure(url.c_str(), nullptr, doc, &filter);
 #endif
     return doc;
 }

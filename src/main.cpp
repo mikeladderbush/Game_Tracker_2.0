@@ -14,6 +14,11 @@
 #include "nfl/nfl_state.h"
 #include "secrets.h"
 
+// setup() runs on Arduino's loop task, and the boot menu's first NFL fetch
+// happens there (nflState.begin()) - same deep-JSON-plus-TLS stack need as
+// stateTask below, so match its size rather than the 8 KB default.
+SET_LOOP_TASK_STACK_SIZE(16 * 1024);
+
 static GameStateMachine gameStateMachine;
 static NflScheduleState nflState;
 static const TeamSprite* selectedTeam = nullptr;
@@ -166,7 +171,9 @@ void setup() {
     }
 
     xTaskCreatePinnedToCore(renderTask, "render", 8192, nullptr, 2, nullptr, 1);
-    xTaskCreatePinnedToCore(stateTask, "state", 8192, nullptr, 2, nullptr, 0);
+    // 16 KB, not 8: the NFL fetch parses 15-level-deep JSON with a TLS read
+    // at the bottom of the call stack.
+    xTaskCreatePinnedToCore(stateTask, "state", 16384, nullptr, 2, nullptr, 0);
 }
 
 void loop() {
