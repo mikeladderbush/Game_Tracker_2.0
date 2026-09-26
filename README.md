@@ -16,7 +16,7 @@ Both modes are switchable live, from a phone or browser, without reflashing or r
 - **Companion Android app** — power toggle, NBA/NFL mode toggle, and a 30-team picker, built with plain `HttpURLConnection` (deliberately no Retrofit/OkHttp) and `NsdManager`-based mDNS auto-discovery.
 - **Pixel-exact bitmap text rendering** — a custom ink-bounds font layout system (see [Text rendering](#text-rendering-pixel-exact-letter-spacing) below) guarantees exactly one physical pixel of gap between any two characters, at any supported size, for any pairing in the font — proven exhaustively by a native test rather than spot-checked.
 - **Two local mock servers for offline development** — `test/TestServer.py` simulates both the NBA live-clock API (with autoplay, fault injection, and manual score/period control) and the NFL weekly-schedule API, so the board's full logic can be exercised without a live game or network access to the real APIs.
-- **97 native unit tests** across 8 suites covering clock parsing, team lookup, game-state transitions, draw-layout math, font-glyph coverage, NFL schedule parsing, and NFL team colors — all run on your dev machine, no board required.
+- **103 native unit tests** across 8 suites covering clock parsing, team lookup, game-state transitions, draw-layout math, font-glyph coverage, NFL schedule parsing, and NFL team colors — all run on your dev machine, no board required.
 
 ## Hardware
 
@@ -63,21 +63,23 @@ The intent: anything that isn't inherently tied to a specific league's data shap
 
 - `nfl/nfl_api_client.cpp` fetches the current week's schedule from ESPN's undocumented public scoreboard endpoint (`site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard`) — a bare request with no query params resolves to whatever week is actually current, server-side, so the board never needs to compute that itself.
 - Odds (favorite, spread, over/under) arrive embedded in the same response under `competitions[0].odds[]` — confirmed live, no separate odds call was ever needed. When a market hasn't posted odds yet, the `odds` key is simply absent, which `nfl_schedule_parser.cpp` treats as `hasOdds=false`, not an error.
-- `nfl/nfl_state.cpp`'s `NflScheduleState` re-fetches the week hourly and auto-advances to the next game every 7 seconds.
-- `nfl/nfl_menu.cpp`'s `drawScheduleList()` renders one matchup per page: away team, "VS.", home team (each abbreviation with its letters alternating between the team's two colors), then favorite+spread and over/under below — all centered and vertically spaced with exactly 1px between blocks.
+- The full ESPN response is ~280 KB and nests 15 levels deep, past ArduinoJson's default nesting limit of 10 — parsing aborts partway through the first game unless the limit is raised (`JSON_NESTING_LIMIT` in `common/http_fetch.h`). The fetch also streams through an ArduinoJson filter (`buildNflScheduleFilter()`) that keeps only the fields the parser reads. A failed fetch yields an empty document, never a half-parsed one.
+- `nfl/nfl_state.cpp`'s `NflScheduleState` re-fetches the week hourly (retrying every 60s while nothing's loaded, and keeping the last good week if a refresh fails) and auto-advances to the next game every 7 seconds.
+- Games already played have no odds on ESPN, so they show `FINAL` instead of the favorite/spread/over-under.
+- `nfl/nfl_menu.cpp`'s `drawScheduleList()` renders one matchup per page: away team, "VS.", home team (each abbreviation with its letters alternating between the team's two colors), then the favorite+spread (e.g. `BUF -7.0`) and the over/under labelled `+/-` (e.g. `+/-50.5`) below — all centered and vertically spaced with exactly 1px between blocks.
 - Team colors (`nfl/nfl_team_colors.cpp`) are hand-curated per team rather than pulled from ESPN's `team.color` field — ESPN's own color data didn't always match how a fan would actually describe a team's colors (e.g. its Patriots "color" is navy, not red). Teams whose real secondary color is black have it swapped for a neutral stand-in, since letters are drawn directly in each color rather than filling a background.
 - `nfl_api_client.cpp` currently defaults to `TEST_SERVER 0` — **live** against ESPN, as of the 2026 regular season. See `NFL_SUPPORT_ROADMAP.md` for the verification history and for what's still not done (kickoff time display, bye-week handling, full pixel-art logos, and the fact that this is an unofficial/undocumented endpoint with no change alerting).
 
 ## Text rendering: pixel-exact letter spacing
 
-Both sports' screens draw text from a hand-authored bitmap font (`common/glyph_data.cpp`, 49 glyphs — digits, uppercase letters, and punctuation actually used across both displays). Early layout code positioned each glyph using its *declared* bounding-box width, which produced visually uneven gaps: some glyphs (like `S`) have a blank trailing column baked into their declared width, others (like `A`) have a blank leading column, so a flat `width + constant` advance looked inconsistent letter-to-letter.
+Both sports' screens draw text from a hand-authored bitmap font (`common/glyph_data.cpp`, 51 glyphs — digits, uppercase letters, and punctuation actually used across both displays). Early layout code positioned each glyph using its *declared* bounding-box width, which produced visually uneven gaps: some glyphs (like `S`) have a blank trailing column baked into their declared width, others (like `A`) have a blank leading column, so a flat `width + constant` advance looked inconsistent letter-to-letter.
 
 `common/glyph_metrics.cpp` fixes this by computing each glyph's actual *ink* bounds (`glyphInkBounds`) and deriving a per-glyph draw offset and advance (`measureGlyph`) such that:
 
 - every glyph's ink starts exactly at its nominal cursor position, regardless of its own leading padding, and
 - the gap between any glyph's ink and the next glyph's ink is exactly 1 physical pixel, at any of the sizes actually used (1×–3×) — by construction, not by tuning.
 
-`test/test_glyph_metrics/test_main.cpp` proves this exhaustively rather than by spot-check: it simulates the cursor math for every glyph paired with every other glyph (including itself) at every supported size — `49 × 49 × 3 ≈ 7200` cases — and asserts the ink-to-ink gap is exactly 1px in every one. Space is deliberately excluded from that rule and kept wider than a letter-gap, so a word-space still reads as a real separator rather than just another 1px gap.
+`test/test_glyph_metrics/test_main.cpp` proves this exhaustively rather than by spot-check: it simulates the cursor math for every glyph paired with every other glyph (including itself) at every supported size — `51 × 51 × 3 ≈ 7800` cases — and asserts the ink-to-ink gap is exactly 1px in every one. Space is deliberately excluded from that rule and kept wider than a letter-gap, so a word-space still reads as a real separator rather than just another 1px gap.
 
 ## Project layout
 
@@ -91,7 +93,7 @@ src/
     display.cpp/.h               - Adafruit_Protomatter matrix init + pin mapping
     draw_tools.cpp/.h             - sprite/text/score/clock rendering (needs the live matrix)
     draw_formatting.cpp/.h        - pure layout/formatting logic behind draw_tools, unit tested
-    glyph_data.cpp/.h             - bitmap font/character sprite table (49 glyphs), unit tested
+    glyph_data.cpp/.h             - bitmap font/character sprite table (51 glyphs), unit tested
     glyph_metrics.cpp/.h          - ink-bounds text layout math (pixel-exact spacing), unit tested
     team_sprite.h                 - generic TeamSprite struct (name/pattern/palette/size)
     http_fetch.cpp/.h             - generic HTTP(S)-GET-a-JSON-document helpers
@@ -128,12 +130,13 @@ NFL_SUPPORT_ROADMAP.md  - living status doc for NFL feature work
 
 1. Copy `src/secrets.h.example` to `src/secrets.h` and fill in your WiFi SSID/password and a [balldontlie API token](https://www.balldontlie.io/) (only needed for NBA's next-scheduled-game lookup; NFL mode needs no token). `secrets.h` is gitignored — never commit it.
 2. Wire the matrix panel per the [pin table above](#hardware).
-3. Set `monitor_port` in `platformio.ini` to whatever serial port your board enumerates as.
+3. Set `monitor_port` in `platformio.ini` to whatever serial port your board enumerates as. The COM number can change between flashes, so re-check it if the serial monitor can't open the port.
 4. Build and upload:
    ```
    pio run --target upload
    ```
-5. On boot, the board connects to WiFi, starts the control server, and hibernates until powered on. It then shows the NBA team-select menu by default — pick a team, or switch to NFL mode — either via the web page it serves at its own IP, or the companion Android app.
+   If the upload fails ("Could not open COMx" / "Failed to connect"), put the board in download mode by hand: hold **BOOT**, tap **RESET**, release **BOOT**, then upload again. To wipe the old flash first, run `pio run -t erase` in that same download mode. Tap **RESET** afterwards to start the new build.
+5. On boot, the board connects to WiFi, starts the control server, and hibernates (panel stays black) until powered on. It then shows the NBA team-select menu by default — pick a team, or switch to NFL mode — either via the web page it serves at its own IP, or the companion Android app.
 
 ## Control server API
 
@@ -175,7 +178,7 @@ Pure logic — anything that doesn't touch the matrix, WiFi, or a live HTTP call
 pio test -e native
 ```
 
-97 tests across 8 suites:
+103 tests across 8 suites:
 
 | Suite | Covers |
 |---|---|
@@ -184,7 +187,7 @@ pio test -e native
 | `test_game_state` | Clock catch-up math across period/OT transitions |
 | `test_glyph_coverage` | Every character used across `drawChar` call sites resolves in the font table |
 | `test_glyph_metrics` | Exhaustive pixel-exact letter-spacing proof (see [Text rendering](#text-rendering-pixel-exact-letter-spacing)) |
-| `test_nfl_schedule` | ESPN JSON → `NflWeekSchedule` parsing, including the no-odds-key case |
+| `test_nfl_schedule` | ESPN JSON → `NflWeekSchedule` parsing (no-odds and finished games included), plus proof the fetch filter never changes what the parser produces and that the device's default JSON nesting limit can't parse the real response |
 | `test_nfl_team_colors` | Per-team color lookup, including the unknown-abbreviation fallback |
 | `test_team_lookup` | NBA team name/abbreviation resolution |
 
