@@ -4,6 +4,16 @@
 #include <cstdlib>
 #include <cstdio>
 
+
+
+/*
+********************************************************************************
+
+    Sprite + glyph primitives. Everything else bottoms out in drawSprite.
+
+********************************************************************************
+*/
+
 static const uint16_t GLYPH_PALETTE[3] = {0x0000, 0x0000, 0xffff};
 
 void drawSprite(int x, int y, uint8_t width, uint8_t height, uint8_t size, const uint8_t* pattern, const uint16_t* palette, uint8_t bgIndex, bool drawBg) {
@@ -68,6 +78,15 @@ int drawTextAlternating(const char* text, int x, int y, uint8_t size, uint16_t c
     }
     return cursorX - x;
 }
+
+/*
+********************************************************************************
+
+    NBA-era fixed-position drawers. Hand-tuned pixel coordinates, NBA
+    layout only - not generalized, only one caller.
+
+********************************************************************************
+*/
 
 void drawLogo(const TeamSprite& team, int x, int y, int homeOrAway){
     int drawX = (homeOrAway == 1) ? x + 32 : x;

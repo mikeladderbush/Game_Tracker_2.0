@@ -1,8 +1,13 @@
-#pragma once
+/*
+********************************************************************************
 
-// Pure formatting/parsing logic pulled out of draw_tools.cpp. No Arduino or
-// hardware (Adafruit_Protomatter) dependency, so this can be compiled and
-// unit tested natively without a board.
+    Pure formatting logic behind draw_tools.cpp's NBA drawers.
+    No hardware dependency, unit tested natively.
+
+********************************************************************************
+*/
+
+#pragma once
 
 struct ScoreDigits {
     int hundreds;

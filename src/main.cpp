@@ -1,3 +1,13 @@
+/*
+********************************************************************************
+
+    main.cpp. Boot, WiFi, two FreeRTOS tasks: renderTask (core 1) draws
+    whatever mode is active, stateTask (core 0) polls and updates it.
+    Mode is AppInput.sport: NBA, NFL, or CLOCK.
+
+********************************************************************************
+*/
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include <freertos/FreeRTOS.h>
@@ -8,10 +18,11 @@
 #include "common/ntp_time.h"
 #include "nba/control_server.h"
 #include "nba/game_state.h"
-#include "nba/nba_menu.h"
 #include "nba/nba_teams.h"
 #include "nfl/nfl_menu.h"
 #include "nfl/nfl_state.h"
+#include "clock/clock_menu.h"
+#include "clock/clock_state.h"
 #include "secrets.h"
 
 // setup() runs on Arduino's loop task, and the boot menu's first NFL fetch
@@ -21,10 +32,25 @@ SET_LOOP_TASK_STACK_SIZE(16 * 1024);
 
 static GameStateMachine gameStateMachine;
 static NflScheduleState nflState;
+static ClockState clockState;
 static const TeamSprite* selectedTeam = nullptr;
 
 static bool isNflMode() {
     return strcmp(appInput.sport, "NFL") == 0;
+}
+
+static bool isClockMode() {
+    return strcmp(appInput.sport, "CLOCK") == 0;
+}
+
+// Shown on the panel whenever the board is idle - powered on but no mode
+// chosen yet.
+static void drawReady() {
+    const char* text = "READY";
+    uint8_t size = 3;
+    int x = (64 - textWidth(text, size)) / 2;
+    int y = (64 - 5 * size) / 2;
+    drawText(text, x, y, size, 0xffff);
 }
 
 // Shared by the boot-time menu loop and stateTask, so switching sport works
@@ -34,6 +60,9 @@ static void applyPendingSelection() {
         appInput.sportPending = false;
         if (isNflMode()) {
             nflState.begin();
+        }
+        if (isClockMode()) {
+            clockState.begin();
         }
     }
     if (appInput.teamPending) {
@@ -69,6 +98,8 @@ static void stateTask(void* pv) {
 
         if (isNflMode()) {
             nflState.update();
+        } else if (isClockMode()) {
+            clockState.update();
         } else if (selectedTeam) {
             gameStateMachine.update();
         }
@@ -83,6 +114,8 @@ static void renderTask(void* pv) {
 
         if (isNflMode()) {
             drawScheduleList(nflState.schedule(), nflState.currentPage());
+        } else if (isClockMode()) {
+            drawClock(clockState.frame());
         } else if (selectedTeam) {
             if (gameStateMachine.isInGame()) {
                 GameFrame frame = gameStateMachine.currentFrame();
@@ -136,12 +169,15 @@ void setup() {
     while (hibernating) {
         pollControlServer();
         if (appInput.powerOn) hibernating = false;
+
+        matrix.fillScreen(0);
+        drawReady();
+        matrix.show();
         delay(50);
     }
 
-    // Wait for either an NBA team pick or a switch to NFL mode (which needs
-    // no team - it shows the whole week's games). Still shows the NBA city
-    // menu while waiting, since that's the default/most common path.
+    // Wait for an NBA team pick, or a switch to NFL or Clock mode (neither
+    // needs a team). Shows READY on the panel while waiting.
     bool menuActive = true;
     while (menuActive) {
         pollControlServer();
@@ -149,6 +185,11 @@ void setup() {
         if (appInput.sportPending && strcmp(appInput.sport, "NFL") == 0) {
             appInput.sportPending = false;
             nflState.begin();
+            menuActive = false;
+        }
+        if (appInput.sportPending && strcmp(appInput.sport, "CLOCK") == 0) {
+            appInput.sportPending = false;
+            clockState.begin();
             menuActive = false;
         }
         if (appInput.teamPending) {
@@ -165,7 +206,7 @@ void setup() {
         }
 
         matrix.fillScreen(0);
-        drawCityMenu();
+        drawReady();
         matrix.show();
         delay(50);
     }

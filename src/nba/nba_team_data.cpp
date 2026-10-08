@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    nba_team_data.cpp. 30 teams' worth of 32x32 indexed-color logo data.
+
+********************************************************************************
+*/
+
 #include "nba_teams.h"
 
 static const uint8_t celtics_pattern[1024] = {

@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    GameStateMachine - live game vs. scheduled game, with a smoothed clock.
+
+********************************************************************************
+*/
+
 #pragma once
 #include "nba_api_client.h"
 #include "../common/clock_sync.h"

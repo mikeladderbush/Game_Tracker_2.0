@@ -1,3 +1,12 @@
+/*
+********************************************************************************
+
+    Local HTTP control server + mDNS. Endpoints: / /on /off /team /sport.
+    No auth - LAN only.
+
+********************************************************************************
+*/
+
 #include "control_server.h"
 #include <WiFi.h>
 #include <WebServer.h>
@@ -23,6 +32,7 @@ static const char* INDEX_HTML = R"HTML(
 <select id="sportBox" onchange="onSportChange()">
   <option value="NBA">NBA</option>
   <option value="NFL">NFL</option>
+  <option value="CLOCK">Clock</option>
 </select>
 <div id="teamRow">
 <select id="teamBox">
@@ -63,8 +73,8 @@ static const char* INDEX_HTML = R"HTML(
 function onSportChange(){
     let sport = document.getElementById("sportBox").value;
     document.getElementById("teamRow").style.display = (sport === "NBA") ? "block" : "none";
-    if (sport === "NFL") {
-        fetch("/sport?value=NFL")
+    if (sport !== "NBA") {
+        fetch("/sport?value=" + sport)
             .then(r => r.text())
             .then(msg => alert(msg));
     }
@@ -124,8 +134,8 @@ void beginControlServer() {
         String value = server.arg("value");
         value.toUpperCase();
 
-        if (value != "NBA" && value != "NFL") {
-            server.send(400, "text/plain", "Invalid sport - must be NBA or NFL");
+        if (value != "NBA" && value != "NFL" && value != "CLOCK") {
+            server.send(400, "text/plain", "Invalid sport - must be NBA, NFL, or CLOCK");
             return;
         }
 

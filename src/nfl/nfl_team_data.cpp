@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    nfl_team_data.cpp. Stub - no logo pixel art authored yet.
+
+********************************************************************************
+*/
+
 #include "nfl_teams.h"
 
 // TODO (NFL_SUPPORT_ROADMAP.md step 10): 32 teams' worth of sprite pattern +

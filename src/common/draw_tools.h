@@ -1,3 +1,12 @@
+/*
+********************************************************************************
+
+    Drawing toolbox. Generic sprite/text primitives, plus NBA's
+    fixed-position drawers (drawLogo, drawScore, drawQuarter, etc).
+
+********************************************************************************
+*/
+
 #pragma once
 #include <cstdint>
 #include <cstddef>

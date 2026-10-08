@@ -1,12 +1,20 @@
+/*
+********************************************************************************
+
+    Matrix wiring + init.
+
+    64x64 HUB75 panel, bit depth 4. 5 address lines (height = 2^addrCount*2).
+    RGB = [R1,G1,B1,R2,G2,B2] = 40,41,42,37,39,38 - R/B swapped from the
+    silkscreen order to fix a wiring bug (red rendered as blue).
+    ADDR = 45,36,48,35,21. CLOCK=2 LATCH=47 OE=14.
+
+********************************************************************************
+*/
+
 #include <Adafruit_Protomatter.h>
 #include <cstdint>
 #include "display.h"
 
-// Order is [R1, G1, B1, R2, G2, B2] per Adafruit_Protomatter. R and B were
-// swapped here (confirmed: a near-pure red team color rendered as blue) -
-// this corrects it in software by relabeling which physical pin is which
-// channel, rather than re-wiring the panel. Affects every color on both
-// NBA and NFL screens, not just one sport - they share this same matrix.
 static uint8_t rgbPins[]  = {40, 41, 42, 37, 39, 38};
 static uint8_t addrPins[] = {45, 36, 48, 35, 21};
 static uint8_t clockPin = 2;

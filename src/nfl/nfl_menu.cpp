@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    nfl_menu.cpp. *_Y constants leave exactly 1px between blocks.
+
+********************************************************************************
+*/
+
 #include "nfl_menu.h"
 #include "nfl_team_colors.h"
 #include "../common/draw_tools.h"

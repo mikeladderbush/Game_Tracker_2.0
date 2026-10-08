@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    NBA data: cdn.nba.com live scoreboard + balldontlie next-game lookup.
+
+********************************************************************************
+*/
+
 #pragma once
 #include <ArduinoJson.h>
 #include "../common/time_formatting.h"

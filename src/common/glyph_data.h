@@ -1,9 +1,15 @@
+/*
+********************************************************************************
+
+    The bitmap font. 51 glyphs: digits, uppercase letters, punctuation.
+    Pure data, no hardware dependency.
+
+********************************************************************************
+*/
+
 #pragma once
 #include <cstdint>
 #include <cstddef>
-
-// Pure glyph data - no Arduino/hardware dependency, so it (and a test that
-// walks it) can be compiled and run natively without a board.
 
 struct GlyphEntry {
     char ch;

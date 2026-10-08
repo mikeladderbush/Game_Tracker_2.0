@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    nba_menu.cpp. CITY_MENU holds one entry per letter, hand-positioned.
+
+********************************************************************************
+*/
+
 #include "nba_menu.h"
 #include "../common/draw_tools.h"
 #include <cstddef>

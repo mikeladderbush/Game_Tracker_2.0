@@ -1,11 +1,12 @@
 /*
 ********************************************************************************
 
-    balldontlie's numeric team IDs. Pure lookup, unit tested natively.
+    Draws "HH:MM" centered. Scrolls old/new value on an hour change.
 
 ********************************************************************************
 */
 
 #pragma once
+#include "clock_state.h"
 
-int teamNameToId(const char* name);
+void drawClock(const ClockFrame& frame);

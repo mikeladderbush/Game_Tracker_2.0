@@ -1,9 +1,14 @@
+/*
+********************************************************************************
+
+    Pure clock/date parsing and formatting. No network/ESP32 dependency,
+    unit tested natively.
+
+********************************************************************************
+*/
+
 #pragma once
 #include <Arduino.h>
-
-// Pure parsing/formatting logic. Needs Arduino's String type but nothing
-// network- or ESP32-specific, so it can be compiled and unit tested natively
-// (String comes from a native Arduino-core shim there).
 
 int clockStrToSecs(const String& clockStr);
 String secsToMMSS(int totalSeconds);

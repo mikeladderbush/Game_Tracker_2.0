@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    nfl_teams.cpp. Stub - returns nullptr until nfl_team_data.cpp exists.
+
+********************************************************************************
+*/
+
 #include "nfl_teams.h"
 
 // TODO: mirror nba/nba_teams.cpp's NAME_TABLE/ABBR_TABLE lookup pattern once

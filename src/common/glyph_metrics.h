@@ -1,20 +1,17 @@
+/*
+********************************************************************************
+
+    Pixel-exact text layout. Measures each glyph's actual ink columns
+    instead of trusting its declared width, so letter gaps land on a flat
+    1px regardless of blank padding in the bitmap. Proven exhaustively in
+    test/test_glyph_metrics/ (~7800 cases), not spot-checked.
+
+********************************************************************************
+*/
+
 #pragma once
 #include <cstdint>
 #include "glyph_data.h"
-
-// Ink-bounds-aware text layout math - pure data/logic, no
-// Adafruit_Protomatter dependency, so it's compiled and exhaustively unit
-// tested natively (test/test_glyph_metrics/) rather than trusted by
-// spot-check. draw_tools.cpp's drawText/drawTextAlternating use this for
-// the actual matrix drawing.
-//
-// A flat per-glyph declared width can't produce a uniform visual gap: most
-// glyphs have blank padding columns baked into their bitmap (e.g. 'S' has a
-// fully blank trailing column - declared width 4, ink only fills columns
-// 0-2 - while 'A' has a blank *leading* column instead), and how much
-// varies letter to letter. Measuring each glyph's actual ink columns at
-// runtime and trimming to that, instead of its declared bounding box, is
-// what makes the gap land on a true, uniform 1px for every letter pair.
 
 // Leftmost/rightmost column (inclusive) containing ink (a pattern value
 // != 0) in the glyph. An entirely blank glyph (space) reports the full

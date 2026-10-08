@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    nba_api_client.cpp. TEST_SERVER 1 = local mock, 0 = live cdn.nba.com.
+
+********************************************************************************
+*/
+
 #include "nba_api_client.h"
 #include "../common/http_fetch.h"
 #include "../common/ntp_time.h"

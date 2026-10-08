@@ -1,3 +1,11 @@
+/*
+********************************************************************************
+
+    nba_teams.cpp. NAME_TABLE/ABBR_TABLE, both unit tested natively.
+
+********************************************************************************
+*/
+
 #include "nba_teams.h"
 #include <Arduino.h>
 #include <string.h>
