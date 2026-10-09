@@ -17,10 +17,12 @@ static bool hasGlyph(char ch) {
 // anywhere in the codebase, as of this pass:
 //   - digits '0'-'9'                          (scores, clock, date, OT number)
 //   - ' ' ':' '-' '_' '.' '+' '/'             (blank digit, clock, date, selector, odds decimals, "+/-")
-//   - 'p' 'a'                                  (AM/PM indicator)
+//   - 'p' 'a'                                  (NBA schedule AM/PM indicator)
 //   - "1st" "2nd" "3rd" "4th" "HT" "OT"/"OTn"   (quarterLabel output)
 //   - nba/nba_menu.cpp's city-menu team abbreviation letters
 //   - nfl/nfl_menu.cpp's team abbreviations, "VS.", "+/-", "ODDS TBD", "FINAL"
+//   - clock/clock_menu.cpp's "AM"/"PM" label - already covered by the team
+//     abbreviation letters below, no new glyphs needed
 // If a character below is missing from GLYPH_TABLE, drawChar silently draws
 // nothing - invisible until you're staring at the actual board. This test
 // catches that at build time instead.

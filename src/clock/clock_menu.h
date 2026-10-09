@@ -1,7 +1,8 @@
 /*
 ********************************************************************************
 
-    Draws "HH:MM" centered. Scrolls old/new value on an hour change.
+    Draws the time centered, or a quarter-hour transition effect - see
+    clock_state.h's ClockAnim.
 
 ********************************************************************************
 */

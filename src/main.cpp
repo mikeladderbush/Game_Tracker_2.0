@@ -13,6 +13,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <string.h>
+#include "common/accelerometer.h"
 #include "common/display.h"
 #include "common/draw_tools.h"
 #include "common/ntp_time.h"
@@ -144,6 +145,9 @@ static void renderTask(void* pv) {
 void setup() {
     Serial.begin(115200);
     initDisplay();
+    if (!initAccelerometer()) {
+        Serial.println("No onboard accelerometer found - clock's sand effect will fall back to straight-down gravity");
+    }
 
     Serial.println("Connecting to WiFi...");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);

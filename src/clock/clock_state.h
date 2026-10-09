@@ -1,21 +1,25 @@
 /*
 ********************************************************************************
 
-    Formats the synced RTC as "HH:MM", refreshed once a second.
-    Scrolls old/new value on an hour change - see ClockFrame.
+    Formats the synced RTC as "H:MMa"/"H:MMp", refreshed once a second.
+    Flags an effect at each quarter-hour mark - see ClockFrame.
 
 ********************************************************************************
 */
 
 #pragma once
+#include <cstdint>
+
+enum class ClockAnim : uint8_t { NONE, SAND, FIRE, PLASMA };
 
 // What clock_menu.cpp needs for one frame. Static most of the time;
-// animating for ANIM_DURATION_MS right after the hour changes.
+// anim != NONE for that effect's own duration right after the matching
+// minute mark (see ClockState::refresh()).
 struct ClockFrame {
-    char text[6] = "--:--";
-    bool animating = false;
-    char prevText[6] = "--:--";
-    float progress = 0.0f;  // 0..1, only meaningful if animating
+    char text[8] = "--:--";
+    char prevText[8] = "--:--";
+    ClockAnim anim = ClockAnim::NONE;
+    float progress = 0.0f;  // 0..1, only meaningful if anim != NONE
 };
 
 class ClockState {
@@ -27,16 +31,19 @@ public:
 
 private:
     void refresh();
+    unsigned long animDurationMs() const;
 
-    char buf_[6] = "--:--";
-    char prevBuf_[6] = "--:--";
-    int lastHour_ = -1;
+    char buf_[8] = "--:--";
+    char prevBuf_[8] = "--:--";
+    int lastMinute_ = -1;
 
-    bool animating_ = false;
+    ClockAnim anim_ = ClockAnim::NONE;
     unsigned long animStartMs_ = 0;
 
     unsigned long lastUpdateMs_ = 0;
 
     static const unsigned long UPDATE_INTERVAL_MS = 1000UL;
-    static const unsigned long ANIM_DURATION_MS = 600UL;
+    static const unsigned long SAND_DURATION_MS = 1200UL;
+    static const unsigned long FIRE_DURATION_MS = 900UL;
+    static const unsigned long PLASMA_DURATION_MS = 1800UL;
 };

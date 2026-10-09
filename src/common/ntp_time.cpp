@@ -31,15 +31,26 @@ String getCurrentDate() {
     return String(buf);
 }
 
-// 24-hour format, deliberately no AM/PM - matches the clock mode's "simple"
-// brief. Reads the ESP32's RTC directly rather than hitting the network -
-// accuracy comes from main.cpp's hourly syncTime() call, not from this
-// function.
-String getCurrentTime() {
+bool getLocalHourMinute(int& hour24, int& minute) {
     struct tm timeinfo;
-    if (!getLocalTime(&timeinfo, 100)) return "00:00";
-    char buf[6];
-    snprintf(buf, sizeof(buf), "%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
+    if (!getLocalTime(&timeinfo, 100)) return false;
+    hour24 = timeinfo.tm_hour;
+    minute = timeinfo.tm_min;
+    return true;
+}
+
+// 12-hour, no leading zero on the hour, with a trailing 'a'/'p' marker
+// (e.g. "9:05a", "12:45p") - same am/pm convention parseScheduleTime()/
+// drawScheduleTime() already use for NBA's schedule display. Reads the
+// ESP32's RTC directly rather than hitting the network - accuracy comes
+// from main.cpp's hourly syncTime() call, not from this function.
+String getCurrentTime() {
+    int hour24, minute;
+    if (!getLocalHourMinute(hour24, minute)) return "12:00a";
+    int hour12 = hour24 % 12;
+    if (hour12 == 0) hour12 = 12;
+    char buf[8];
+    snprintf(buf, sizeof(buf), "%d:%02d%c", hour12, minute, hour24 < 12 ? 'a' : 'p');
     return String(buf);
 }
 
