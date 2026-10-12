@@ -1,10 +1,10 @@
 /*
 ********************************************************************************
 
-    clock_menu.cpp. Static: digits + a smaller AM/PM label below, one
-    block. On a quarter-hour mark a transition effect plays instead -
-    SAND (:15/:45), FIRE (:30), PLASMA (:00) - then the static block
-    takes over once it ends.
+    clock_menu.cpp. Static: digits, AM/PM, temperature - three stacked
+    lines. On a quarter-hour mark a transition effect plays instead -
+    SAND (:15/:45), FIRE (:30), PLASMA (:00), neither of which touch the
+    temperature line - then the static block takes over once it ends.
 
 ********************************************************************************
 */
@@ -13,7 +13,6 @@
 #include "../common/draw_tools.h"
 #include "../common/accelerometer.h"
 #include <cstring>
-#include <cstdlib>
 #include <cmath>
 
 static const int PANEL_WIDTH = 64;
@@ -24,7 +23,8 @@ static const uint16_t WHITE = 0xffff;
 // via common/glyph_metrics.h's textWidth(), not guessed.
 static const uint8_t CLOCK_SIZE = 4;
 static const uint8_t AMPM_SIZE = 2;
-static const int BLOCK_GAP = 4;  // px between the digits and the AM/PM label
+static const uint8_t TEMP_SIZE = 2;
+static const int BLOCK_GAP = 4;  // px between each line
 
 
 
@@ -50,8 +50,10 @@ static int blockHeight() {
 // getCurrentTime() (common/ntp_time.h) appends a trailing 'a'/'p' marker,
 // e.g. "9:05a" - split that off and draw it as its own smaller "AM"/"PM"
 // line below the digits, rather than one uniformly-sized string (which
-// doesn't fit the panel once a marker's appended at full size).
-static void drawClockBlock(const char* text, int y) {
+// doesn't fit the panel once a marker's appended at full size). The
+// temperature (common/weather.h, via ClockState) goes on a third line
+// below that - "--" until the first successful fetch.
+static void drawClockBlock(const char* text, const char* temp, int y) {
     size_t len = strlen(text);
     if (len == 0) return;
 
@@ -65,9 +67,12 @@ static void drawClockBlock(const char* text, int y) {
     digits[digitLen] = '\0';
 
     drawCentered(digits, y, CLOCK_SIZE);
+    int nextY = y + 5 * CLOCK_SIZE + BLOCK_GAP;
     if (hasMarker) {
-        drawCentered(marker == 'p' ? "PM" : "AM", y + 5 * CLOCK_SIZE + BLOCK_GAP, AMPM_SIZE);
+        drawCentered(marker == 'p' ? "PM" : "AM", nextY, AMPM_SIZE);
+        nextY += 5 * AMPM_SIZE + BLOCK_GAP;
     }
+    drawCentered(temp, nextY, TEMP_SIZE);
 }
 
 
@@ -196,18 +201,46 @@ static void drawSandTransition(const ClockFrame& frame) {
 /*
 ********************************************************************************
 
-    FIRE (:30) - classic demoscene technique: each frame, average every
-    cell with its neighbors below and cool it slightly, with fresh random
-    heat fed in at the bottom. A precomputed palette turns heat into
-    color. Full panel, no text - the new time appears once it's done.
+    FIRE (:30) and PLASMA (:00) share a shape: both color the NEW time's
+    own cells (digits + AM/PM, same walkClockBlockCells as sand) instead
+    of painting the full panel - the number is legible as itself from the
+    first frame, not a separate effect that cuts to text at the end. Each
+    cell's effect color blends to solid white over the back half of the
+    duration (resolveToWhite), so it reads as "ignites/shimmers, then
+    settles into the number" rather than a hard cut.
 
 ********************************************************************************
 */
 
-static uint8_t fireHeat[PANEL_HEIGHT][PANEL_WIDTH];
+// Blend weight toward solid white: holds at pure effect color for the
+// first 45% of the duration, then eases in over the rest - two phases,
+// not a snap at the very end.
+static float resolveToWhite(float progress) {
+    const float holdUntil = 0.45f;
+    if (progress <= holdUntil) return 0.0f;
+    float t = (progress - holdUntil) / (1.0f - holdUntil);
+    return t * t * (3.0f - 2.0f * t);  // smoothstep
+}
+
+static uint16_t lerp565(uint16_t a, uint16_t b, float t) {
+    int ar = (a >> 11) & 0x1F, ag = (a >> 5) & 0x3F, ab = a & 0x1F;
+    int br = (b >> 11) & 0x1F, bg = (b >> 5) & 0x3F, bb = b & 0x1F;
+    int r = ar + (int)((br - ar) * t);
+    int g = ag + (int)((bg - ag) * t);
+    int b2 = ab + (int)((bb - ab) * t);
+    return (uint16_t)(((r & 0x1F) << 11) | ((g & 0x3F) << 5) | (b2 & 0x1F));
+}
+
+template <typename ColorFn>
+static void drawMorphingBlock(const ClockFrame& frame, int baseY, ColorFn&& colorFn) {
+    float whiteAmount = resolveToWhite(frame.progress);
+    walkClockBlockCells(frame.text, baseY, [&](int x, int y, int size) {
+        uint16_t color = lerp565(colorFn(x, y), WHITE, whiteAmount);
+        matrix.fillRect(x, y, size, size, color);
+    });
+}
 
 static uint16_t fireColor(uint8_t heat) {
-    if (heat == 0) return 0x0000;
     if (heat < 60) return 0xb000;   // deep red
     if (heat < 120) return 0xf9e0;  // red-orange
     if (heat < 180) return 0xfc60;  // orange
@@ -216,53 +249,22 @@ static uint16_t fireColor(uint8_t heat) {
 }
 
 static void drawFireTransition(const ClockFrame& frame) {
-    if (frame.progress < 0.05f) {
-        // Fresh transition: seed the whole buffer with a bottom-hot
-        // gradient instead of starting cold, so the panel is already
-        // full of fire by the first frame rather than growing upward
-        // for the first half of a very short effect.
-        for (int y = 0; y < PANEL_HEIGHT; y++) {
-            for (int x = 0; x < PANEL_WIDTH; x++) {
-                int bias = 255 - (255 * y) / PANEL_HEIGHT;
-                fireHeat[y][x] = (uint8_t)(rand() % 256 * bias / 255);
-            }
-        }
-    }
+    int baseY = (PANEL_HEIGHT - blockHeight()) / 2;
+    if (baseY < 0) baseY = 0;
+    float t = frame.progress;
 
-    for (int x = 0; x < PANEL_WIDTH; x++) {
-        fireHeat[PANEL_HEIGHT - 1][x] = (uint8_t)(160 + rand() % 96);
-    }
-    for (int y = 0; y < PANEL_HEIGHT - 1; y++) {
-        for (int x = 0; x < PANEL_WIDTH; x++) {
-            int left = fireHeat[y + 1][x > 0 ? x - 1 : 0];
-            int mid = fireHeat[y + 1][x];
-            int right = fireHeat[y + 1][x < PANEL_WIDTH - 1 ? x + 1 : PANEL_WIDTH - 1];
-            int decay = rand() % 4;
-            int next = (left + mid + right) / 3 - decay;
-            fireHeat[y][x] = (uint8_t)(next < 0 ? 0 : next);
-        }
-    }
-
-    for (int y = 0; y < PANEL_HEIGHT; y++) {
-        for (int x = 0; x < PANEL_WIDTH; x++) {
-            matrix.drawPixel(x, y, fireColor(fireHeat[y][x]));
-        }
-    }
+    drawMorphingBlock(frame, baseY, [&](int x, int y) {
+        // Per-cell flicker, phase-offset by a hash of its own position so
+        // neighboring cells don't flicker in lockstep - stable across
+        // frames without storing anything, same trick sand uses.
+        uint32_t h = hash2(x, y);
+        float phase = (float)(h % 1000) * 0.01f;
+        float flicker = sinf(phase + t * 14.0f) * 0.5f + 0.5f;
+        return fireColor((uint8_t)(80 + flicker * 175));
+    });
 }
 
 
-
-/*
-********************************************************************************
-
-    PLASMA (:00) - a sum of sine waves sampled on a coarse grid, cycled
-    through a full-saturation rainbow. No persistent state - purely a
-    function of elapsed time, unlike fire's heat buffer.
-
-********************************************************************************
-*/
-
-static const int PLASMA_CELL = 2;  // px per plasma block - full-resolution would be ~4x the sin() calls
 
 static uint16_t hueToRgb565(float hue) {
     hue -= floorf(hue);
@@ -285,19 +287,19 @@ static uint16_t hueToRgb565(float hue) {
 }
 
 static void drawPlasmaTransition(const ClockFrame& frame) {
+    int baseY = (PANEL_HEIGHT - blockHeight()) / 2;
+    if (baseY < 0) baseY = 0;
     float t = frame.progress * 6.2831853f * 3.0f;  // 3 full cycles over the effect's duration
 
-    for (int by = 0; by < PANEL_HEIGHT; by += PLASMA_CELL) {
-        for (int bx = 0; bx < PANEL_WIDTH; bx += PLASMA_CELL) {
-            float dx = bx - 32.0f, dy = by - 32.0f;
-            float v = sinf(bx * 0.15f + t) +
-                      sinf(by * 0.15f + t * 1.3f) +
-                      sinf((bx + by) * 0.1f + t * 0.7f) +
-                      sinf(sqrtf(dx * dx + dy * dy) * 0.15f - t * 1.5f);
-            float hue = (v + 4.0f) / 8.0f;
-            matrix.fillRect(bx, by, PLASMA_CELL, PLASMA_CELL, hueToRgb565(hue));
-        }
-    }
+    drawMorphingBlock(frame, baseY, [&](int x, int y) {
+        float dx = x - 32.0f, dy = y - 32.0f;
+        float v = sinf(x * 0.15f + t) +
+                  sinf(y * 0.15f + t * 1.3f) +
+                  sinf((x + y) * 0.1f + t * 0.7f) +
+                  sinf(sqrtf(dx * dx + dy * dy) * 0.15f - t * 1.5f);
+        float hue = (v + 4.0f) / 8.0f;
+        return hueToRgb565(hue);
+    });
 }
 
 
@@ -310,7 +312,12 @@ void drawClock(const ClockFrame& frame) {
         default: break;
     }
 
-    int y = (PANEL_HEIGHT - blockHeight()) / 2;
+    // Resting state only - the temperature line isn't part of any
+    // transition (nothing "transitions" about the weather), so this is
+    // taller than blockHeight() (digits+AM/PM), which sand/fire/plasma
+    // above still center against unchanged.
+    int restingHeight = blockHeight() + BLOCK_GAP + 5 * TEMP_SIZE;
+    int y = (PANEL_HEIGHT - restingHeight) / 2;
     if (y < 0) y = 0;
-    drawClockBlock(frame.text, y);
+    drawClockBlock(frame.text, frame.temp, y);
 }

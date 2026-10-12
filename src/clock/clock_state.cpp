@@ -9,7 +9,10 @@
 #include "clock_state.h"
 #include <Arduino.h>
 #include <cstring>
+#include <cstdio>
+#include <cmath>
 #include "../common/ntp_time.h"
+#include "../common/weather.h"
 
 void ClockState::refresh() {
     String now = getCurrentTime();  // ::getCurrentTime() in common/ntp_time.h
@@ -36,9 +39,20 @@ void ClockState::refresh() {
     buf_[sizeof(buf_) - 1] = '\0';
 }
 
+void ClockState::refreshWeather() {
+    WeatherResult result = fetchWeather();
+    // On failure, keep showing the last good reading rather than blanking
+    // it - same choice NFL's NflScheduleState makes on a failed fetch.
+    if (result.found) {
+        snprintf(tempBuf_, sizeof(tempBuf_), "%dF", (int)roundf(result.tempF));
+    }
+}
+
 void ClockState::begin() {
     refresh();
+    refreshWeather();
     lastUpdateMs_ = millis();
+    lastWeatherMs_ = millis();
 }
 
 unsigned long ClockState::animDurationMs() const {
@@ -61,12 +75,19 @@ void ClockState::update() {
         refresh();
         lastUpdateMs_ = now;
     }
+
+    if (now - lastWeatherMs_ >= WEATHER_INTERVAL_MS) {
+        refreshWeather();
+        lastWeatherMs_ = now;
+    }
 }
 
 ClockFrame ClockState::frame() const {
     ClockFrame f;
     strncpy(f.text, buf_, sizeof(f.text) - 1);
     f.text[sizeof(f.text) - 1] = '\0';
+    strncpy(f.temp, tempBuf_, sizeof(f.temp) - 1);
+    f.temp[sizeof(f.temp) - 1] = '\0';
 
     f.anim = anim_;
     if (anim_ != ClockAnim::NONE) {

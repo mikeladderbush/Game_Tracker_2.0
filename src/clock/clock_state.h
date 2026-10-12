@@ -18,6 +18,7 @@ enum class ClockAnim : uint8_t { NONE, SAND, FIRE, PLASMA };
 struct ClockFrame {
     char text[8] = "--:--";
     char prevText[8] = "--:--";
+    char temp[8] = "--";  // "62F"/"-5F" - last good Open-Meteo reading, see weather.h
     ClockAnim anim = ClockAnim::NONE;
     float progress = 0.0f;  // 0..1, only meaningful if anim != NONE
 };
@@ -31,11 +32,15 @@ public:
 
 private:
     void refresh();
+    void refreshWeather();
     unsigned long animDurationMs() const;
 
     char buf_[8] = "--:--";
     char prevBuf_[8] = "--:--";
     int lastMinute_ = -1;
+
+    char tempBuf_[8] = "--";
+    unsigned long lastWeatherMs_ = 0;
 
     ClockAnim anim_ = ClockAnim::NONE;
     unsigned long animStartMs_ = 0;
@@ -43,6 +48,9 @@ private:
     unsigned long lastUpdateMs_ = 0;
 
     static const unsigned long UPDATE_INTERVAL_MS = 1000UL;
+    // Open-Meteo's own "current" reading only updates server-side on
+    // roughly this cadence - polling faster wouldn't get fresher data.
+    static const unsigned long WEATHER_INTERVAL_MS = 900000UL;
     static const unsigned long SAND_DURATION_MS = 1200UL;
     static const unsigned long FIRE_DURATION_MS = 900UL;
     static const unsigned long PLASMA_DURATION_MS = 1800UL;
