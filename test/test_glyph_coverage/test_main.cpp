@@ -23,13 +23,16 @@ static bool hasGlyph(char ch) {
 //   - nfl/nfl_menu.cpp's team abbreviations, "VS.", "+/-", "ODDS TBD", "FINAL"
 //   - clock/clock_menu.cpp's "AM"/"PM" label - already covered by the team
 //     abbreviation letters below, no new glyphs needed
+//   - clock_state.cpp's date line, "Mon. Dth" (e.g. "Nov. 2nd") - month
+//     abbreviations and ordinal suffixes
 // If a character below is missing from GLYPH_TABLE, drawChar silently draws
 // nothing - invisible until you're staring at the actual board. This test
 // catches that at build time instead.
 static const char CHARS_USED[] =
     "0123456789 :-_.pa+/"
     "stndrhOT"                              // quarter labels
-    "ATLBKNOSCHIDEGWUMPRXYFJV";              // team abbreviations + VS./OU/ODDS TBD/OF (deduped by hand)
+    "ATLBKNOSCHIDEGWUMPRXYFJV"               // team abbreviations + VS./OU/ODDS TBD/OF (deduped by hand)
+    "bceouvyg";                              // date month abbreviations ("Jan"-"Dec")
 
 void test_every_used_character_has_a_glyph() {
     for (size_t i = 0; i < sizeof(CHARS_USED) - 1; i++) {

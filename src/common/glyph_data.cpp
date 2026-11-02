@@ -59,6 +59,16 @@ static const uint8_t glyph_48_pattern[10] = {0,0,0,0,0,0,0,0,2,0};
 // row 2 with '-' so the two line up.
 static const uint8_t glyph_49_pattern[15] = {0,0,0,0,2,0,2,2,2,0,2,0,0,0,0};
 static const uint8_t glyph_50_pattern[15] = {0,0,2,0,0,2,0,2,0,2,0,0,2,0,0};
+// Added for the clock's "Mon. Dth" date format (clock_state.cpp) - the
+// month abbreviations and "st"/"nd"/"rd"/"th" suffixes needed these.
+static const uint8_t glyph_51_pattern[20] = {0,2,0,0,0,2,0,0,0,2,2,2,0,2,0,2,0,2,2,2};  // b - mirrored 'd'
+static const uint8_t glyph_52_pattern[20] = {0,0,0,0,0,2,2,2,2,0,0,0,2,0,0,0,0,2,2,2};  // c
+static const uint8_t glyph_53_pattern[20] = {0,0,0,0,0,2,2,0,2,2,2,2,2,0,0,0,0,2,2,0};  // e
+static const uint8_t glyph_54_pattern[20] = {0,0,0,0,0,2,2,0,2,0,0,2,2,0,0,2,0,2,2,0};  // o
+static const uint8_t glyph_55_pattern[20] = {0,0,0,0,2,0,2,0,2,0,2,0,2,0,2,0,0,2,2,2};  // u
+static const uint8_t glyph_56_pattern[20] = {0,0,0,0,2,0,0,2,2,0,0,2,0,2,2,0,0,0,2,0};  // v
+static const uint8_t glyph_57_pattern[20] = {0,0,0,0,2,0,0,2,2,0,0,2,0,2,2,0,0,2,0,0};  // y
+static const uint8_t glyph_58_pattern[20] = {0,2,2,0,2,0,0,2,2,0,0,2,0,2,2,2,0,0,0,2};  // g - hooked tail, kept distinct from 'o'
 
 const GlyphEntry GLYPH_TABLE[] = {
     {'0', 4, 5, glyph_0_pattern},
@@ -112,5 +122,13 @@ const GlyphEntry GLYPH_TABLE[] = {
     {'.', 2, 5, glyph_48_pattern},
     {'+', 3, 5, glyph_49_pattern},
     {'/', 3, 5, glyph_50_pattern},
+    {'b', 4, 5, glyph_51_pattern},
+    {'c', 4, 5, glyph_52_pattern},
+    {'e', 4, 5, glyph_53_pattern},
+    {'o', 4, 5, glyph_54_pattern},
+    {'u', 4, 5, glyph_55_pattern},
+    {'v', 4, 5, glyph_56_pattern},
+    {'y', 4, 5, glyph_57_pattern},
+    {'g', 4, 5, glyph_58_pattern},
 };
-const size_t GLYPH_TABLE_SIZE = 51;
+const size_t GLYPH_TABLE_SIZE = 59;

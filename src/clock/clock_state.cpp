@@ -14,6 +14,22 @@
 #include "../common/ntp_time.h"
 #include "../common/weather.h"
 
+static const char* MONTH_ABBR[12] = {
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
+
+static const char* ordinalSuffix(int day) {
+    int mod100 = day % 100;
+    if (mod100 >= 11 && mod100 <= 13) return "th";
+    switch (day % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
+    }
+}
+
 void ClockState::refresh() {
     String now = getCurrentTime();  // ::getCurrentTime() in common/ntp_time.h
 
@@ -37,6 +53,14 @@ void ClockState::refresh() {
 
     strncpy(buf_, now.c_str(), sizeof(buf_) - 1);
     buf_[sizeof(buf_) - 1] = '\0';
+
+    int month, day;
+    if (getLocalMonthDay(month, day)) {
+        month_ = month;
+        const char* period = (month == 5) ? "" : ".";  // "May", not "May."
+        snprintf(dateBuf_, sizeof(dateBuf_), "%s%s %d%s",
+                 MONTH_ABBR[month - 1], period, day, ordinalSuffix(day));
+    }
 }
 
 void ClockState::refreshWeather() {
@@ -45,6 +69,8 @@ void ClockState::refreshWeather() {
     // it - same choice NFL's NflScheduleState makes on a failed fetch.
     if (result.found) {
         snprintf(tempBuf_, sizeof(tempBuf_), "%dF", (int)roundf(result.tempF));
+        tempFVal_ = result.tempF;
+        hasTemp_ = true;
     }
 }
 
@@ -88,6 +114,12 @@ ClockFrame ClockState::frame() const {
     f.text[sizeof(f.text) - 1] = '\0';
     strncpy(f.temp, tempBuf_, sizeof(f.temp) - 1);
     f.temp[sizeof(f.temp) - 1] = '\0';
+    f.tempF = tempFVal_;
+    f.hasTemp = hasTemp_;
+
+    strncpy(f.date, dateBuf_, sizeof(f.date) - 1);
+    f.date[sizeof(f.date) - 1] = '\0';
+    f.month = month_;
 
     f.anim = anim_;
     if (anim_ != ClockAnim::NONE) {

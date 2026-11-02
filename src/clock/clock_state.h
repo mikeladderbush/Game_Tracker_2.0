@@ -19,6 +19,10 @@ struct ClockFrame {
     char text[8] = "--:--";
     char prevText[8] = "--:--";
     char temp[8] = "--";  // "62F"/"-5F" - last good Open-Meteo reading, see weather.h
+    float tempF = 0.0f;
+    bool hasTemp = false;  // false until the first successful fetch - see temp's own comment
+    char date[12] = "---";  // "Nov. 2nd" - abbreviated month + ordinal day
+    int month = 0;  // 1-12, 0 until the RTC is synced - clock_menu.cpp's sprite lookup
     ClockAnim anim = ClockAnim::NONE;
     float progress = 0.0f;  // 0..1, only meaningful if anim != NONE
 };
@@ -39,7 +43,12 @@ private:
     char prevBuf_[8] = "--:--";
     int lastMinute_ = -1;
 
+    char dateBuf_[12] = "---";
+    int month_ = 0;
+
     char tempBuf_[8] = "--";
+    float tempFVal_ = 0.0f;
+    bool hasTemp_ = false;
     unsigned long lastWeatherMs_ = 0;
 
     ClockAnim anim_ = ClockAnim::NONE;

@@ -39,6 +39,14 @@ bool getLocalHourMinute(int& hour24, int& minute) {
     return true;
 }
 
+bool getLocalMonthDay(int& month, int& day) {
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo, 100)) return false;
+    month = timeinfo.tm_mon + 1;
+    day = timeinfo.tm_mday;
+    return true;
+}
+
 // 12-hour, no leading zero on the hour, with a trailing 'a'/'p' marker
 // (e.g. "9:05a", "12:45p") - same am/pm convention parseScheduleTime()/
 // drawScheduleTime() already use for NBA's schedule display. Reads the
